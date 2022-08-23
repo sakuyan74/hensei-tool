@@ -2,6 +2,7 @@
 import wx
 import wx.xrc
 from view.busyo_search import UnitSelect
+from view.senpo_search import SenpoSelect
 from hensei_data_manager import HenseiDataManager
 from static_data_manager import StaticDataManager
 from status_manager import StatusManager
@@ -18,6 +19,35 @@ LABEL_ZERO = "0"
 ID_SELECT_MAIN = wx.ID_HIGHEST + 1
 ID_SELECT_SUB_1 = wx.ID_HIGHEST + 2
 ID_SELECT_SUB_2 = wx.ID_HIGHEST + 3
+ID_SELECT_MAIN_SENPO_2 = wx.ID_HIGHEST + 4
+ID_SELECT_MAIN_SENPO_3 = wx.ID_HIGHEST + 5
+ID_SELECT_SUB_1_SENPO_2 = wx.ID_HIGHEST + 6
+ID_SELECT_SUB_1_SENPO_3 = wx.ID_HIGHEST + 7
+ID_SELECT_SUB_2_SENPO_2 = wx.ID_HIGHEST + 8
+ID_SELECT_SUB_2_SENPO_3 = wx.ID_HIGHEST + 9
+ID_SELECT_MAIN_HEIHO_1 = wx.ID_HIGHEST + 10
+ID_SELECT_MAIN_HEIHO_2 = wx.ID_HIGHEST + 11
+ID_SELECT_MAIN_HEIHO_3 = wx.ID_HIGHEST + 12
+ID_SELECT_SUB_1_HEIHO_1 = wx.ID_HIGHEST + 13
+ID_SELECT_SUB_1_HEIHO_2 = wx.ID_HIGHEST + 14
+ID_SELECT_SUB_1_HEIHO_3 = wx.ID_HIGHEST + 15
+ID_SELECT_SUB_2_HEIHO_1 = wx.ID_HIGHEST + 16
+ID_SELECT_SUB_2_HEIHO_2 = wx.ID_HIGHEST + 17
+ID_SELECT_SUB_2_HEIHO_3 = wx.ID_HIGHEST + 18
+ID_SELECT_CLEAR_MAIN = wx.ID_HIGHEST + 19
+ID_SELECT_CLEAR_SUB_1 = wx.ID_HIGHEST + 20
+ID_SELECT_CLEAR_SUB_2 = wx.ID_HIGHEST + 21
+ID_CHANGE_HENSEI_1 = wx.ID_HIGHEST + 22
+ID_CHANGE_HENSEI_2 = wx.ID_HIGHEST + 23
+ID_CHANGE_HENSEI_3 = wx.ID_HIGHEST + 24
+ID_CHANGE_HENSEI_4 = wx.ID_HIGHEST + 25
+ID_CHANGE_HENSEI_5 = wx.ID_HIGHEST + 26
+ID_CHANGE_HENSEI_6 = wx.ID_HIGHEST + 27
+ID_CHANGE_HENSEI_7 = wx.ID_HIGHEST + 28
+ID_CHANGE_HENSEI_8 = wx.ID_HIGHEST + 29
+ID_CHANGE_HENSEI_9 = wx.ID_HIGHEST + 30
+ID_CHANGE_HENSEI_10 = wx.ID_HIGHEST + 31
+
 
 class TopFrame (wx.Frame):
     def __init__(self, parent):
@@ -35,16 +65,13 @@ class TopFrame (wx.Frame):
 
         bSizer14 = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.clear_button = wx.Button(sbSizer7.GetStaticBox(), wx.ID_ANY, u"Clear", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.clear_button.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DLIGHT))
-
-        bSizer14.Add(self.clear_button, 0, wx.ALL, 5)
-
         self.output_button = wx.Button(sbSizer7.GetStaticBox(), wx.ID_ANY, u"編成セット出力", wx.DefaultPosition, wx.DefaultSize, 0)
         bSizer14.Add(self.output_button, 0, wx.ALL, 5)
+        self.output_button.Disable()
 
         self.input_button = wx.Button(sbSizer7.GetStaticBox(), wx.ID_ANY, u"編成セット読込", wx.DefaultPosition, wx.DefaultSize, 0)
         bSizer14.Add(self.input_button, 0, wx.ALL, 5)
+        self.input_button.Disable()
 
         self.output_discord_button = wx.Button(sbSizer7.GetStaticBox(), wx.ID_ANY, u"編成出力(Discord用)", wx.DefaultPosition, wx.DefaultSize, 0)
         bSizer14.Add(self.output_discord_button, 0, wx.ALL, 5)
@@ -64,35 +91,46 @@ class TopFrame (wx.Frame):
 
         sbSizer3 = wx.StaticBoxSizer(wx.StaticBox(self.m_panel1, wx.ID_ANY, u"編成選択"), wx.VERTICAL)
 
-        self.h_select_1_button = wx.Button(sbSizer3.GetStaticBox(), wx.ID_ANY, u"編成1", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.h_select_1_button = wx.Button(sbSizer3.GetStaticBox(), ID_CHANGE_HENSEI_1, u"編成1", wx.DefaultPosition, wx.DefaultSize, 0)
         sbSizer3.Add(self.h_select_1_button, 1, wx.ALL, 5)
 
-        self.h_select_2_button = wx.Button(sbSizer3.GetStaticBox(), wx.ID_ANY, u"編成2", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.h_select_2_button = wx.Button(sbSizer3.GetStaticBox(), ID_CHANGE_HENSEI_2, u"編成2", wx.DefaultPosition, wx.DefaultSize, 0)
         sbSizer3.Add(self.h_select_2_button, 1, wx.ALL, 5)
 
-        self.h_select_3_button = wx.Button(sbSizer3.GetStaticBox(), wx.ID_ANY, u"編成3", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.h_select_3_button = wx.Button(sbSizer3.GetStaticBox(), ID_CHANGE_HENSEI_3, u"編成3", wx.DefaultPosition, wx.DefaultSize, 0)
         sbSizer3.Add(self.h_select_3_button, 1, wx.ALL, 5)
 
-        self.h_select_4_button = wx.Button(sbSizer3.GetStaticBox(), wx.ID_ANY, u"編成4", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.h_select_4_button = wx.Button(sbSizer3.GetStaticBox(), ID_CHANGE_HENSEI_4, u"編成4", wx.DefaultPosition, wx.DefaultSize, 0)
         sbSizer3.Add(self.h_select_4_button, 1, wx.ALL, 5)
 
-        self.h_select_5_button = wx.Button(sbSizer3.GetStaticBox(), wx.ID_ANY, u"編成5", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.h_select_5_button = wx.Button(sbSizer3.GetStaticBox(), ID_CHANGE_HENSEI_5, u"編成5", wx.DefaultPosition, wx.DefaultSize, 0)
         sbSizer3.Add(self.h_select_5_button, 1, wx.ALL, 5)
 
-        self.h_select_6_button = wx.Button(sbSizer3.GetStaticBox(), wx.ID_ANY, u"編成6", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.h_select_6_button = wx.Button(sbSizer3.GetStaticBox(), ID_CHANGE_HENSEI_6, u"編成6", wx.DefaultPosition, wx.DefaultSize, 0)
         sbSizer3.Add(self.h_select_6_button, 1, wx.ALL, 5)
 
-        self.h_select_7_button = wx.Button(sbSizer3.GetStaticBox(), wx.ID_ANY, u"編成7", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.h_select_7_button = wx.Button(sbSizer3.GetStaticBox(), ID_CHANGE_HENSEI_7, u"編成7", wx.DefaultPosition, wx.DefaultSize, 0)
         sbSizer3.Add(self.h_select_7_button, 1, wx.ALL, 5)
 
-        self.h_select_8_button = wx.Button(sbSizer3.GetStaticBox(), wx.ID_ANY, u"編成8", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.h_select_8_button = wx.Button(sbSizer3.GetStaticBox(), ID_CHANGE_HENSEI_8, u"編成8", wx.DefaultPosition, wx.DefaultSize, 0)
         sbSizer3.Add(self.h_select_8_button, 1, wx.ALL, 5)
 
-        self.h_select_9_button = wx.Button(sbSizer3.GetStaticBox(), wx.ID_ANY, u"編成9", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.h_select_9_button = wx.Button(sbSizer3.GetStaticBox(), ID_CHANGE_HENSEI_9, u"編成9", wx.DefaultPosition, wx.DefaultSize, 0)
         sbSizer3.Add(self.h_select_9_button, 1, wx.ALL, 5)
 
-        self.h_select_10_button = wx.Button(sbSizer3.GetStaticBox(), wx.ID_ANY, u"編成10", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.h_select_10_button = wx.Button(sbSizer3.GetStaticBox(), ID_CHANGE_HENSEI_10, u"編成10", wx.DefaultPosition, wx.DefaultSize, 0)
         sbSizer3.Add(self.h_select_10_button, 1, wx.ALL, 5)
+        
+        self.Bind(wx.EVT_BUTTON, self.change_hensei, self.h_select_1_button)
+        self.Bind(wx.EVT_BUTTON, self.change_hensei, self.h_select_2_button)
+        self.Bind(wx.EVT_BUTTON, self.change_hensei, self.h_select_3_button)
+        self.Bind(wx.EVT_BUTTON, self.change_hensei, self.h_select_4_button)
+        self.Bind(wx.EVT_BUTTON, self.change_hensei, self.h_select_5_button)
+        self.Bind(wx.EVT_BUTTON, self.change_hensei, self.h_select_6_button)
+        self.Bind(wx.EVT_BUTTON, self.change_hensei, self.h_select_7_button)
+        self.Bind(wx.EVT_BUTTON, self.change_hensei, self.h_select_8_button)
+        self.Bind(wx.EVT_BUTTON, self.change_hensei, self.h_select_9_button)
+        self.Bind(wx.EVT_BUTTON, self.change_hensei, self.h_select_10_button)
 
         self.m_panel1.SetSizer(sbSizer3)
         self.m_panel1.Layout()
@@ -107,9 +145,10 @@ class TopFrame (wx.Frame):
 
         sbSizer2 = wx.StaticBoxSizer(wx.StaticBox(self.m_panel2, wx.ID_ANY, u"兵種"), wx.VERTICAL)
 
-        select_kind_choiceChoices = ["馬", "盾", "弓", "槍"]
+        select_kind_choiceChoices = ["馬", "盾", "弓", "槍", "兵器", "水軍"]
         self.select_kind_choice = wx.Choice(sbSizer2.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, select_kind_choiceChoices, 0)
         self.select_kind_choice.SetSelection(0)
+        self.Bind(wx.EVT_CHOICE, self.update_kind, self.select_kind_choice)
         sbSizer2.Add(self.select_kind_choice, 0, wx.ALL, 5)
 
         bSizer119.Add(sbSizer2, 1, wx.EXPAND, 5)
@@ -169,8 +208,9 @@ class TopFrame (wx.Frame):
 
         bSizer3111 = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.main_unit_drop_button = wx.Button(self.m_panel12, wx.ID_ANY, u"外す", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.main_unit_drop_button = wx.Button(self.m_panel12, ID_SELECT_CLEAR_MAIN, u"外す", wx.DefaultPosition, wx.DefaultSize, 0)
         self.main_unit_drop_button.SetMaxSize(wx.Size(35, -1))
+        self.Bind(wx.EVT_BUTTON, self.drop_unit, self.main_unit_drop_button)
 
         bSizer3111.Add(self.main_unit_drop_button, 0, wx.ALL | wx.EXPAND, 5)
 
@@ -178,8 +218,9 @@ class TopFrame (wx.Frame):
 
         bSizer3121 = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.sub_1_unit_drop_button = wx.Button(self.m_panel12, wx.ID_ANY, u"外す", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_1_unit_drop_button = wx.Button(self.m_panel12, ID_SELECT_CLEAR_SUB_1, u"外す", wx.DefaultPosition, wx.DefaultSize, 0)
         self.sub_1_unit_drop_button.SetMaxSize(wx.Size(35, -1))
+        self.Bind(wx.EVT_BUTTON, self.drop_unit, self.sub_1_unit_drop_button)
 
         bSizer3121.Add(self.sub_1_unit_drop_button, 0, wx.ALL | wx.EXPAND, 5)
 
@@ -187,8 +228,9 @@ class TopFrame (wx.Frame):
 
         bSizer3131 = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.sub_2_unit_drop_button = wx.Button(self.m_panel12, wx.ID_ANY, u"外す", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_2_unit_drop_button = wx.Button(self.m_panel12, ID_SELECT_CLEAR_SUB_2, u"外す", wx.DefaultPosition, wx.DefaultSize, 0)
         self.sub_2_unit_drop_button.SetMaxSize(wx.Size(35, -1))
+        self.Bind(wx.EVT_BUTTON, self.drop_unit, self.sub_2_unit_drop_button)
 
         bSizer3131.Add(self.sub_2_unit_drop_button, 0, wx.ALL | wx.EXPAND, 5)
 
@@ -375,26 +417,23 @@ class TopFrame (wx.Frame):
         bSizer21.Add(self.m_staticText22, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
 
         bSizer47 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.main_senpo2_select_button = wx.Button(sbSizer6.GetStaticBox(), wx.ID_ANY, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.main_senpo2_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_MAIN_SENPO_2, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
         bSizer47.Add(self.main_senpo2_select_button, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
+        self.Bind(wx.EVT_BUTTON, self.show_senpo_select, self.main_senpo2_select_button)
         bSizer21.Add(bSizer47, 1, wx.EXPAND, 5)
 
         bSizer49 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.sub_1_senpo2_select_button = wx.Button(sbSizer6.GetStaticBox(), wx.ID_ANY, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_1_senpo2_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_SUB_1_SENPO_2, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
         bSizer49.Add(self.sub_1_senpo2_select_button, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
+        self.Bind(wx.EVT_BUTTON, self.show_senpo_select, self.sub_1_senpo2_select_button)
         bSizer21.Add(bSizer49, 1, wx.EXPAND, 5)
 
         bSizer50 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.sub_2_senpo2_select_button = wx.Button(sbSizer6.GetStaticBox(), wx.ID_ANY, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_2_senpo2_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_SUB_2_SENPO_2, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
         bSizer50.Add(self.sub_2_senpo2_select_button, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
+        self.Bind(wx.EVT_BUTTON, self.show_senpo_select, self.sub_2_senpo2_select_button)
         bSizer21.Add(bSizer50, 1, wx.EXPAND, 5)
-
+        
         bSizer19.Add(bSizer21, 1, wx.EXPAND, 5)
 
         bSizer22 = wx.BoxSizer(wx.VERTICAL)
@@ -405,24 +444,21 @@ class TopFrame (wx.Frame):
         bSizer22.Add(self.m_staticText26, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
 
         bSizer51 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.main_senpo3_select_button = wx.Button(sbSizer6.GetStaticBox(), wx.ID_ANY, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.main_senpo3_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_MAIN_SENPO_3, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
         bSizer51.Add(self.main_senpo3_select_button, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
+        self.Bind(wx.EVT_BUTTON, self.show_senpo_select, self.main_senpo3_select_button)
         bSizer22.Add(bSizer51, 1, wx.EXPAND, 5)
 
         bSizer52 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.sub_1_senpo3_select_button = wx.Button(sbSizer6.GetStaticBox(), wx.ID_ANY, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_1_senpo3_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_SUB_1_SENPO_3, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
         bSizer52.Add(self.sub_1_senpo3_select_button, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
+        self.Bind(wx.EVT_BUTTON, self.show_senpo_select, self.sub_1_senpo3_select_button)
         bSizer22.Add(bSizer52, 1, wx.EXPAND, 5)
 
         bSizer53 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.sub_2_senpo3_select_button = wx.Button(sbSizer6.GetStaticBox(), wx.ID_ANY, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_2_senpo3_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_SUB_2_SENPO_3, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
         bSizer53.Add(self.sub_2_senpo3_select_button, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
+        self.Bind(wx.EVT_BUTTON, self.show_senpo_select, self.sub_2_senpo3_select_button)
         bSizer22.Add(bSizer53, 1, wx.EXPAND, 5)
 
         bSizer19.Add(bSizer22, 1, wx.EXPAND, 5)
@@ -438,7 +474,7 @@ class TopFrame (wx.Frame):
 
         main_heihousyo_choiceChoices = []
         self.main_heihousyo_choice = wx.Choice(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, main_heihousyo_choiceChoices, 0)
-        self.main_heihousyo_choice.SetSelection(0)
+        self.main_heihousyo_choice.Bind(wx.EVT_CHOICE, self.on_select_main_heihosyo_choice)
         bSizer54.Add(self.main_heihousyo_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
         bSizer23.Add(bSizer54, 1, wx.EXPAND, 5)
@@ -447,7 +483,7 @@ class TopFrame (wx.Frame):
 
         sub_1_heihousyo_choiceChoices = []
         self.sub_1_heihousyo_choice = wx.Choice(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, sub_1_heihousyo_choiceChoices, 0)
-        self.sub_1_heihousyo_choice.SetSelection(0)
+        self.sub_1_heihousyo_choice.Bind(wx.EVT_CHOICE, self.on_select_sub_1_heihosyo_choice)
         bSizer55.Add(self.sub_1_heihousyo_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
         bSizer23.Add(bSizer55, 1, wx.EXPAND, 5)
@@ -456,7 +492,7 @@ class TopFrame (wx.Frame):
 
         sub_2_heihousyo_choiceChoices = []
         self.sub_2_heihousyo_choice = wx.Choice(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, sub_2_heihousyo_choiceChoices, 0)
-        self.sub_2_heihousyo_choice.SetSelection(0)
+        self.sub_2_heihousyo_choice.Bind(wx.EVT_CHOICE, self.on_select_sub_2_heihosyo_choice)
         bSizer56.Add(self.sub_2_heihousyo_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
         bSizer23.Add(bSizer56, 1, wx.EXPAND, 5)
@@ -473,8 +509,9 @@ class TopFrame (wx.Frame):
         bSizer541 = wx.BoxSizer(wx.HORIZONTAL)
 
         main_heihou1_choiceChoices = []
-        self.main_heihou1_choice = wx.Choice(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, main_heihou1_choiceChoices, 0)
+        self.main_heihou1_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_MAIN_HEIHO_1, wx.DefaultPosition, wx.DefaultSize, main_heihou1_choiceChoices, 0)
         self.main_heihou1_choice.SetSelection(0)
+        self.main_heihou1_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_1_choice)
         bSizer541.Add(self.main_heihou1_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
         bSizer231.Add(bSizer541, 1, wx.EXPAND, 5)
@@ -482,8 +519,9 @@ class TopFrame (wx.Frame):
         bSizer551 = wx.BoxSizer(wx.HORIZONTAL)
 
         sub_1_heihou1_choiceChoices = []
-        self.sub_1_heihou1_choice = wx.Choice(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, sub_1_heihou1_choiceChoices, 0)
+        self.sub_1_heihou1_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_SUB_1_HEIHO_1, wx.DefaultPosition, wx.DefaultSize, sub_1_heihou1_choiceChoices, 0)
         self.sub_1_heihou1_choice.SetSelection(0)
+        self.sub_1_heihou1_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_1_choice)
         bSizer551.Add(self.sub_1_heihou1_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
         bSizer231.Add(bSizer551, 1, wx.EXPAND, 5)
@@ -491,8 +529,9 @@ class TopFrame (wx.Frame):
         bSizer561 = wx.BoxSizer(wx.HORIZONTAL)
 
         sub_2_heihou1_choiceChoices = []
-        self.sub_2_heihou1_choice = wx.Choice(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, sub_2_heihou1_choiceChoices, 0)
+        self.sub_2_heihou1_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_SUB_2_HEIHO_1, wx.DefaultPosition, wx.DefaultSize, sub_2_heihou1_choiceChoices, 0)
         self.sub_2_heihou1_choice.SetSelection(0)
+        self.sub_2_heihou1_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_1_choice)
         bSizer561.Add(self.sub_2_heihou1_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
         bSizer231.Add(bSizer561, 1, wx.EXPAND, 5)
@@ -509,8 +548,9 @@ class TopFrame (wx.Frame):
         bSizer542 = wx.BoxSizer(wx.HORIZONTAL)
 
         main_heihou2_choiceChoices = []
-        self.main_heihou2_choice = wx.Choice(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, main_heihou2_choiceChoices, 0)
+        self.main_heihou2_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_MAIN_HEIHO_2, wx.DefaultPosition, wx.DefaultSize, main_heihou2_choiceChoices, 0)
         self.main_heihou2_choice.SetSelection(0)
+        self.main_heihou2_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_2_3_choice)
         bSizer542.Add(self.main_heihou2_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
         bSizer232.Add(bSizer542, 1, wx.EXPAND, 5)
@@ -518,8 +558,9 @@ class TopFrame (wx.Frame):
         bSizer552 = wx.BoxSizer(wx.HORIZONTAL)
 
         sub_1_heihou2_choiceChoices = []
-        self.sub_1_heihou2_choice = wx.Choice(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, sub_1_heihou2_choiceChoices, 0)
+        self.sub_1_heihou2_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_SUB_1_HEIHO_2, wx.DefaultPosition, wx.DefaultSize, sub_1_heihou2_choiceChoices, 0)
         self.sub_1_heihou2_choice.SetSelection(0)
+        self.sub_1_heihou2_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_2_3_choice)
         bSizer552.Add(self.sub_1_heihou2_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
         bSizer232.Add(bSizer552, 1, wx.EXPAND, 5)
@@ -527,8 +568,9 @@ class TopFrame (wx.Frame):
         bSizer562 = wx.BoxSizer(wx.HORIZONTAL)
 
         sub_2_heihou2_choiceChoices = []
-        self.sub_2_heihou2_choice = wx.Choice(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, sub_2_heihou2_choiceChoices, 0)
+        self.sub_2_heihou2_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_SUB_2_HEIHO_2, wx.DefaultPosition, wx.DefaultSize, sub_2_heihou2_choiceChoices, 0)
         self.sub_2_heihou2_choice.SetSelection(0)
+        self.sub_2_heihou2_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_2_3_choice)
         bSizer562.Add(self.sub_2_heihou2_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
         bSizer232.Add(bSizer562, 1, wx.EXPAND, 5)
@@ -545,8 +587,9 @@ class TopFrame (wx.Frame):
         bSizer5421 = wx.BoxSizer(wx.HORIZONTAL)
 
         main_heihou3_choiceChoices = []
-        self.main_heihou3_choice = wx.Choice(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, main_heihou3_choiceChoices, 0)
+        self.main_heihou3_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_MAIN_HEIHO_3, wx.DefaultPosition, wx.DefaultSize, main_heihou3_choiceChoices, 0)
         self.main_heihou3_choice.SetSelection(0)
+        self.main_heihou3_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_2_3_choice)
         bSizer5421.Add(self.main_heihou3_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
         bSizer2321.Add(bSizer5421, 1, wx.EXPAND, 5)
@@ -554,8 +597,9 @@ class TopFrame (wx.Frame):
         bSizer5521 = wx.BoxSizer(wx.HORIZONTAL)
 
         sub_1_heihou3_choiceChoices = []
-        self.sub_1_heihou3_choice = wx.Choice(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, sub_1_heihou3_choiceChoices, 0)
+        self.sub_1_heihou3_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_SUB_1_HEIHO_3, wx.DefaultPosition, wx.DefaultSize, sub_1_heihou3_choiceChoices, 0)
         self.sub_1_heihou3_choice.SetSelection(0)
+        self.sub_1_heihou3_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_2_3_choice)
         bSizer5521.Add(self.sub_1_heihou3_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
         bSizer2321.Add(bSizer5521, 1, wx.EXPAND, 5)
@@ -563,8 +607,9 @@ class TopFrame (wx.Frame):
         bSizer5621 = wx.BoxSizer(wx.HORIZONTAL)
 
         sub_2_heihou3_choiceChoices = []
-        self.sub_2_heihou3_choice = wx.Choice(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, sub_2_heihou3_choiceChoices, 0)
+        self.sub_2_heihou3_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_SUB_2_HEIHO_3, wx.DefaultPosition, wx.DefaultSize, sub_2_heihou3_choiceChoices, 0)
         self.sub_2_heihou3_choice.SetSelection(0)
+        self.sub_2_heihou3_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_2_3_choice)
         bSizer5621.Add(self.sub_2_heihou3_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
         bSizer2321.Add(bSizer5621, 1, wx.EXPAND, 5)
@@ -1420,13 +1465,304 @@ class TopFrame (wx.Frame):
 
         return
     
+    def update_kind(self, event):
+        choice = event.GetEventObject()
+        n = choice.GetSelection()
+        HenseiDataManager().update_kind(n, StatusManager().selected_hensei)
+        
+        hensei_data = self.get_selected_hensei_data()
+        self.update_parameter(hensei_data, 0)
+        self.update_parameter(hensei_data, 1)
+        self.update_parameter(hensei_data, 2)
+        return
+
+    def on_select_heiho_1_choice(self, event):
+        choice = event.GetEventObject()
+        n = choice.GetSelection()
+        selected_heiho_id = choice.GetClientData(n)
+        hensei_data = self.get_selected_hensei_data()
+        hensei_id = StatusManager().selected_hensei
+        if event.GetId() == ID_SELECT_MAIN_HEIHO_1:
+            org_heiho_id = hensei_data["main_unit"]["heihou_1"]
+            unit_id = 0
+        elif event.GetId() == ID_SELECT_SUB_1_HEIHO_1:
+            org_heiho_id = hensei_data["sub_1_unit"]["heihou_1"]
+            unit_id = 1
+        elif event.GetId() == ID_SELECT_SUB_2_HEIHO_1:
+            org_heiho_id = hensei_data["sub_2_unit"]["heihou_1"]
+            unit_id = 2
+        else:
+            raise(Exception("Heiho_1 choice Error"))
+        
+        if selected_heiho_id == org_heiho_id:
+            return
+
+        HenseiDataManager().set_heiho(selected_heiho_id, unit_id, 1, hensei_id)
+
+        return
+
+    def on_select_heiho_2_3_choice(self, event):
+        choice = event.GetEventObject()
+        n = choice.GetSelection()
+        selected_heiho_id = choice.GetClientData(n)
+        hensei_data = self.get_selected_hensei_data()
+        hensei_id = StatusManager().selected_hensei
+        index = None
+        if event.GetId() == ID_SELECT_MAIN_HEIHO_2:
+            org_heiho_id = hensei_data["main_unit"]["heihou_2"]
+            unit_id = 0
+            index = 2
+        elif event.GetId() == ID_SELECT_MAIN_HEIHO_3:
+            org_heiho_id = hensei_data["main_unit"]["heihou_3"]
+            unit_id = 0
+            index = 3
+        elif event.GetId() == ID_SELECT_SUB_1_HEIHO_2:
+            org_heiho_id = hensei_data["sub_1_unit"]["heihou_2"]
+            unit_id = 1
+            index = 2
+        elif event.GetId() == ID_SELECT_SUB_1_HEIHO_3:
+            org_heiho_id = hensei_data["sub_1_unit"]["heihou_3"]
+            unit_id = 1
+            index = 3
+        elif event.GetId() == ID_SELECT_SUB_2_HEIHO_2:
+            org_heiho_id = hensei_data["sub_2_unit"]["heihou_2"]
+            unit_id = 2
+            index = 2
+        elif event.GetId() == ID_SELECT_SUB_2_HEIHO_3:
+            org_heiho_id = hensei_data["sub_2_unit"]["heihou_3"]
+            unit_id = 2
+            index = 3
+        else:
+            raise(Exception("Heiho_2_3 choice Error"))
+
+        if selected_heiho_id == org_heiho_id:
+            return
+
+        HenseiDataManager().set_heiho(selected_heiho_id, unit_id, index, hensei_id)
+        self.update_heihou_choice(selected_heiho_id, unit_id, index)
+        return
+
+    def on_select_main_heihosyo_choice(self, event):
+        hensei_data = self.get_selected_hensei_data()
+        busyo_data = StaticDataManager().get_busyo_by_id(hensei_data["main_unit"]["busyo"])
+
+        selected_heihousyo = event.GetEventObject().GetSelection() + 1
+        if selected_heihousyo + 1 == hensei_data["main_unit"]["heihousyo"]:
+            return
+
+        heihou_tuple = self.initialize_heihou(selected_heihousyo, busyo_data)
+        StatusManager().main_heiho_2_3_tuple_list = heihou_tuple[1]
+
+        self.main_heihou1_choice.Clear()
+        self.main_heihou2_choice.Clear()
+        self.main_heihou3_choice.Clear()
+
+        for item in heihou_tuple[0]:
+            self.main_heihou1_choice.Append(item[0], item[1])
+
+        for item in heihou_tuple[1]:
+            self.main_heihou2_choice.Append(item[0], item[1])
+            self.main_heihou3_choice.Append(item[0], item[1])
+
+        self.main_heihou1_choice.SetSelection(0)
+        self.main_heihou2_choice.SetSelection(0)
+        self.main_heihou3_choice.SetSelection(0)
+        
+        HenseiDataManager().set_heiho(selected_heihousyo, 0, 0, hensei_data["hensei"]["hensei_id"])
+        HenseiDataManager().set_heiho(-1, 0, 1, hensei_data["hensei"]["hensei_id"])
+        HenseiDataManager().set_heiho(-1, 0, 2, hensei_data["hensei"]["hensei_id"])
+        HenseiDataManager().set_heiho(-1, 0, 3, hensei_data["hensei"]["hensei_id"])
+
+        return
+
+    def on_select_sub_1_heihosyo_choice(self, event):
+        hensei_data = self.get_selected_hensei_data()
+        busyo_data = StaticDataManager().get_busyo_by_id(hensei_data["sub_1_unit"]["busyo"])
+
+        selected_heihousyo = event.GetEventObject().GetSelection() + 1
+
+        if selected_heihousyo + 1 == hensei_data["sub_1_unit"]["heihousyo"]:
+            return
+
+        heihou_tuple = self.initialize_heihou(selected_heihousyo, busyo_data)
+        StatusManager().sub_1_heiho_2_3_tuple_list = heihou_tuple[1]
+
+        self.sub_1_heihou1_choice.Clear()
+        self.sub_1_heihou2_choice.Clear()
+        self.sub_1_heihou3_choice.Clear()
+
+        for item in heihou_tuple[0]:
+            self.sub_1_heihou1_choice.Append(item[0], item[1])
+
+        for item in heihou_tuple[1]:
+            self.sub_1_heihou2_choice.Append(item[0], item[1])
+            self.sub_1_heihou3_choice.Append(item[0], item[1])
+
+        self.sub_1_heihou1_choice.SetSelection(0)
+        self.sub_1_heihou2_choice.SetSelection(0)
+        self.sub_1_heihou3_choice.SetSelection(0)
+
+        HenseiDataManager().set_heiho(selected_heihousyo, 1, 0, hensei_data["hensei"]["hensei_id"])
+        HenseiDataManager().set_heiho(-1, 1, 1, hensei_data["hensei"]["hensei_id"])
+        HenseiDataManager().set_heiho(-1, 1, 2, hensei_data["hensei"]["hensei_id"])
+        HenseiDataManager().set_heiho(-1, 1, 3, hensei_data["hensei"]["hensei_id"])
+        return
+
+    def on_select_sub_2_heihosyo_choice(self, event):
+        hensei_data = self.get_selected_hensei_data()
+        busyo_data = StaticDataManager().get_busyo_by_id(hensei_data["sub_2_unit"]["busyo"])
+        
+        selected_heihousyo = event.GetEventObject().GetSelection() + 1
+        
+        heihou_tuple = self.initialize_heihou(selected_heihousyo, busyo_data)
+        StatusManager().sub_2_heiho_2_3_tuple_list = heihou_tuple[1]
+        
+        if selected_heihousyo + 1 == hensei_data["sub_2_unit"]["heihousyo"]:
+            return
+        
+        self.sub_2_heihou1_choice.Clear()
+        self.sub_2_heihou2_choice.Clear()
+        self.sub_2_heihou3_choice.Clear()
+        
+        for item in heihou_tuple[0]:
+            self.sub_2_heihou1_choice.Append(item[0], item[1])
+            
+        for item in heihou_tuple[1]:
+            self.sub_2_heihou2_choice.Append(item[0], item[1])
+            self.sub_2_heihou3_choice.Append(item[0], item[1])
+
+        self.sub_2_heihou1_choice.SetSelection(0)
+        self.sub_2_heihou2_choice.SetSelection(0)
+        self.sub_2_heihou3_choice.SetSelection(0)
+        
+        HenseiDataManager().set_heiho(selected_heihousyo, 2, 0, hensei_data["hensei"]["hensei_id"])
+        HenseiDataManager().set_heiho(-1, 2, 1, hensei_data["hensei"]["hensei_id"])
+        HenseiDataManager().set_heiho(-1, 2, 2, hensei_data["hensei"]["hensei_id"])
+        HenseiDataManager().set_heiho(-1, 2, 3, hensei_data["hensei"]["hensei_id"])
+        return
+    
+    def update_heihou_choice(self, heiho_id, unit_id, index):
+        hensei_data = HenseiDataManager.get_hensei_data(StatusManager().selected_hensei)
+        if unit_id == 0:
+            if index == 2:
+                another_heiho_id = hensei_data["main_unit"]["heihou_3"]
+                heiho_name_list = StaticDataManager.get_heiho_name_by_id_list([heiho_id, another_heiho_id])
+                self.main_heihou3_choice.Clear()
+                heihou_tuple = StatusManager().main_heiho_2_3_tuple_list
+                for item in heihou_tuple:
+                    self.main_heihou3_choice.Append(item[0], item[1])
+                if heiho_id != -1:
+                    self.main_heihou3_choice.Delete(self.main_heihou3_choice.FindString(heiho_name_list[0]))
+                if another_heiho_id != -1:
+                    self.main_heihou3_choice.SetSelection(self.main_heihou3_choice.FindString(heiho_name_list[1]))
+                else:
+                    self.main_heihou3_choice.SetSelection(0)
+            else:
+                another_heiho_id = hensei_data["main_unit"]["heihou_2"]
+                heiho_name_list = StaticDataManager.get_heiho_name_by_id_list([heiho_id, another_heiho_id])
+                self.main_heihou2_choice.Clear()
+                heihou_tuple = StatusManager().main_heiho_2_3_tuple_list
+                for item in heihou_tuple:
+                    self.main_heihou2_choice.Append(item[0], item[1])
+                if heiho_id != -1:
+                    self.main_heihou2_choice.Delete(self.main_heihou2_choice.FindString(heiho_name_list[0]))
+                if another_heiho_id != -1:
+                    self.main_heihou2_choice.SetSelection(self.main_heihou2_choice.FindString(heiho_name_list[1]))
+                else:
+                    self.main_heihou2_choice.SetSelection(0)
+        if unit_id == 1:
+            if index == 2:
+                another_heiho_id = hensei_data["sub_1_unit"]["heihou_3"]
+                heiho_name_list = StaticDataManager.get_heiho_name_by_id_list([heiho_id, another_heiho_id])
+                self.sub_1_heihou3_choice.Clear()
+                heihou_tuple = StatusManager().sub_1_heiho_2_3_tuple_list
+                for item in heihou_tuple:
+                    self.sub_1_heihou3_choice.Append(item[0], item[1])
+                if heiho_id != -1:
+                    self.sub_1_heihou3_choice.Delete(self.sub_1_heihou3_choice.FindString(heiho_name_list[0]))
+                if another_heiho_id != -1:
+                    self.sub_1_heihou3_choice.SetSelection(self.sub_1_heihou3_choice.FindString(heiho_name_list[1]))
+                else:
+                    self.sub_1_heihou3_choice.SetSelection(0)
+            else:
+                another_heiho_id = hensei_data["sub_1_unit"]["heihou_2"]
+                heiho_name_list = StaticDataManager.get_heiho_name_by_id_list([heiho_id, another_heiho_id])
+                self.sub_1_heihou2_choice.Clear()
+                heihou_tuple = StatusManager().sub_1_heiho_2_3_tuple_list
+                for item in heihou_tuple:
+                    self.sub_1_heihou2_choice.Append(item[0], item[1])
+                if heiho_id != -1:
+                    self.sub_1_heihou2_choice.Delete(self.sub_1_heihou2_choice.FindString(heiho_name_list[0]))
+                if another_heiho_id != -1:
+                    self.sub_1_heihou2_choice.SetSelection(self.sub_1_heihou2_choice.FindString(heiho_name_list[1]))
+                else:
+                    self.sub_1_heihou2_choice.SetSelection(0)
+        if unit_id == 2:
+            if index == 2:
+                another_heiho_id = hensei_data["sub_2_unit"]["heihou_3"]
+                heiho_name_list = StaticDataManager.get_heiho_name_by_id_list([heiho_id, another_heiho_id])
+                self.sub_2_heihou3_choice.Clear()
+                heihou_tuple = StatusManager().sub_2_heiho_2_3_tuple_list
+                for item in heihou_tuple:
+                    self.sub_2_heihou3_choice.Append(item[0], item[1])
+                print(self.sub_2_heihou3_choice.GetStrings())
+                print(heiho_id)
+                print(heiho_name_list[0])
+                if heiho_id != -1:
+                    
+                    print(self.sub_2_heihou3_choice.FindString(heiho_name_list[0]))
+                    self.sub_2_heihou3_choice.Delete(self.sub_2_heihou3_choice.FindString(heiho_name_list[0]))
+                if another_heiho_id != -1:
+                    self.sub_2_heihou3_choice.SetSelection(self.sub_2_heihou3_choice.FindString(heiho_name_list[1]))
+                else:
+                    self.sub_2_heihou3_choice.SetSelection(0)
+            else:
+                another_heiho_id = hensei_data["sub_2_unit"]["heihou_2"]
+                heiho_name_list = StaticDataManager.get_heiho_name_by_id_list([heiho_id, another_heiho_id])
+                self.sub_2_heihou2_choice.Clear()
+                heihou_tuple = StatusManager().sub_2_heiho_2_3_tuple_list
+                for item in heihou_tuple:
+                    self.sub_2_heihou2_choice.Append(item[0], item[1])
+                if heiho_id != -1:
+                    self.sub_2_heihou2_choice.Delete(self.sub_2_heihou2_choice.FindString(heiho_name_list[0]))
+                if another_heiho_id != -1:
+                    self.sub_2_heihou2_choice.SetSelection(self.sub_2_heihou2_choice.FindString(heiho_name_list[1]))
+                else:
+                    self.sub_2_heihou2_choice.SetSelection(0)
+
+        return
+
+    def initialize_heihou(self, heihousyo, busyo_data):
+        condition_1 = {"heiho_" + str(heihousyo) + "_2_1", "heiho_" + str(heihousyo) + "_2_2", "heiho_" + str(heihousyo) + "_2_3"}
+        condition_2 = {"heiho_" + str(heihousyo) + "_3_1",
+                       "heiho_" + str(heihousyo) + "_3_2",
+                       "heiho_" + str(heihousyo) + "_3_3",
+                       "heiho_" + str(heihousyo) + "_3_4",
+                       "heiho_" + str(heihousyo) + "_3_5"}
+        heiho_1_id = []
+        heiho_2_id = []
+        for key, value in busyo_data.items():
+            if key in condition_1:
+                heiho_1_id.append(value)
+            if key in condition_2:
+                heiho_2_id.append(value)
+
+        heiho_1_name = StaticDataManager().get_heiho_name_by_id_list(heiho_1_id)
+        heiho_2_name = StaticDataManager().get_heiho_name_by_id_list(heiho_2_id)
+
+        heiho_1 = list(zip(heiho_1_name, heiho_1_id))
+        heiho_2 = list(zip(heiho_2_name, heiho_2_id))
+        heiho_2.insert(0, ("", -1))
+
+        return (heiho_1, heiho_2)
+
     def update_common_parameter(self, hensei_data):
         self.select_kind_choice.SetSelection(hensei_data["hensei"]["kind"])
         self.level_text_ctrl.SetValue(str(hensei_data["hensei"]["level"]))
         self.select_heisen_level_choice.SetSelection(hensei_data["hensei"]["heisen_level"])
         self.select_kyoryoku_level_choice.SetSelection(hensei_data["hensei"]["kyoryoku_level"])
         return
-    
+
     def update_parameter(self, hensei_data, unit_id):
         if unit_id == 0:
             self.update_main_parameter(hensei_data)
@@ -1447,26 +1783,80 @@ class TopFrame (wx.Frame):
         self.main_unit_drop_button.Enable()
         self.main_unit_select_button.SetLabel(busyo_data["name"])
         self.main_country_label.SetLabel(busyo_data["country"])
-        if hensei_data["hensei"]["kind"] == 0:
+        kind = hensei_data["hensei"]["kind"]
+        if kind == 0:
             self.main_suitable_label.SetLabel(busyo_data["horse"])
-        elif hensei_data["hensei"]["kind"] == 1:
+        elif kind == 1:
             self.main_suitable_label.SetLabel(busyo_data["shield"])
-        elif hensei_data["hensei"]["kind"] == 2:
+        elif kind == 2:
             self.main_suitable_label.SetLabel(busyo_data["bow"])
-        elif hensei_data["hensei"]["kind"] == 3:
+        elif kind == 3:
             self.main_suitable_label.SetLabel(busyo_data["rance"])
+        elif kind == 4:
+            self.main_suitable_label.SetLabel(busyo_data["weapon"])
+        elif kind == 5:
+            self.main_suitable_label.SetLabel(busyo_data["water"])
         else:
             pass
-        self.main_unique_senpo_label.SetLabel("TODO実装")
+
+        unique_senpo = StaticDataManager().get_senpo_by_id(busyo_data["org_skill"])
+        self.main_unique_senpo_label.SetLabel(unique_senpo["name"])
+
         self.main_senpo2_select_button.Enable()
-        self.main_senpo2_select_button.SetLabel(LABEL_CHOICE)
+        if hensei_data["main_unit"]["skill_2"] == -1:
+            self.main_senpo2_select_button.SetLabel(LABEL_CHOICE)
+            self.main_senpo2_select_button.SetForegroundColour(wx.BLACK)
+        else:
+            senpo_2 = StaticDataManager().get_senpo_by_id(hensei_data["main_unit"]["skill_2"])
+            suitable_list = StaticDataManager().get_suitable_by_id(hensei_data["main_unit"]["skill_2"])
+            
+            if kind != 5 and suitable_list[kind] is not True:
+                self.main_senpo2_select_button.SetForegroundColour(wx.RED)
+            else:
+                self.main_senpo2_select_button.SetForegroundColour(wx.BLACK)
+            self.main_senpo2_select_button.SetLabel(senpo_2["name"])
+
         self.main_senpo3_select_button.Enable()
-        self.main_senpo3_select_button.SetLabel(LABEL_CHOICE)
-        # TODO 兵法書関連
-        self.main_heihousyo_choice.SetSelection(0)
-        self.main_heihou1_choice.SetSelection(0)
-        self.main_heihou2_choice.SetSelection(0)
-        self.main_heihou3_choice.SetSelection(0)
+        if hensei_data["main_unit"]["skill_3"] == -1:
+            self.main_senpo3_select_button.SetLabel(LABEL_CHOICE)
+            self.main_senpo3_select_button.SetForegroundColour(wx.BLACK)
+        else:
+            senpo_3 = StaticDataManager().get_senpo_by_id(hensei_data["main_unit"]["skill_3"])
+            suitable_list = StaticDataManager().get_suitable_by_id(hensei_data["main_unit"]["skill_3"])
+
+            if kind != 5 and suitable_list[kind] is not True:
+                self.main_senpo3_select_button.SetForegroundColour(wx.RED)
+            else:
+                self.main_senpo3_select_button.SetForegroundColour(wx.BLACK)
+            self.main_senpo3_select_button.SetLabel(senpo_3["name"])
+
+        self.main_heihousyo_choice.Clear()
+        self.main_heihou1_choice.Clear()
+        self.main_heihou2_choice.Clear()
+        self.main_heihou3_choice.Clear()
+
+        self.main_heihousyo_choice.AppendItems(["作戦", "虚実", "軍形", "九変"])
+
+        main_heihousyo = hensei_data["main_unit"]["heihousyo"]
+        
+        self.main_heihousyo_choice.SetSelection(main_heihousyo - 1)
+        heihou_tuple = self.initialize_heihou(main_heihousyo, busyo_data)
+        StatusManager().main_heiho_2_3_tuple_list = heihou_tuple[1]
+        
+        for item in heihou_tuple[0]:
+            self.main_heihou1_choice.Append(item[0], item[1])
+            
+        for item in heihou_tuple[1]:
+            self.main_heihou2_choice.Append(item[0], item[1])
+            self.main_heihou3_choice.Append(item[0], item[1])
+
+        if hensei_data["main_unit"]["heihou_1"] == -1:
+            self.main_heihou1_choice.SetSelection(0)
+        else:
+            self.main_heihou1_choice.SetSelection(self.main_heihou1_choice.FindString(StaticDataManager.get_heiho_name_by_id_list([hensei_data["main_unit"]["heihou_1"]])[0]))
+
+        self.update_heihou_choice(hensei_data["main_unit"]["heihou_2"], 0, 2)
+        self.update_heihou_choice(hensei_data["main_unit"]["heihou_3"], 0, 3)
         
         self.main_rankup_choice.SetSelection(hensei_data["main_unit"]["rankup"])
         if hensei_data["main_unit"]["hizo"] == 0:
@@ -1498,6 +1888,15 @@ class TopFrame (wx.Frame):
         self.main_battle_def_label.SetLabel("統率:" + LABEL_NOTHING)
         self.main_battle_int_label.SetLabel("知力:" + LABEL_NOTHING)
         self.main_battle_spd_label.SetLabel("速度:" + LABEL_NOTHING)
+        
+        self.main_heihousyo_choice.Enable()
+        self.main_heihou1_choice.Enable()
+        self.main_heihou2_choice.Enable()
+        self.main_heihou3_choice.Enable()
+        self.main_rankup_choice.Enable()
+        self.main_hizo_checkbox.Enable()
+        self.main_anime_checkbox.Enable()
+        self.main_eq_skill_select_button.Enable()
         return
 
     def update_sub_1_parameter(self, hensei_data):
@@ -1510,26 +1909,76 @@ class TopFrame (wx.Frame):
         self.sub_1_unit_drop_button.Enable()
         self.sub_1_unit_select_button.SetLabel(busyo_data["name"])
         self.sub_1_country_label.SetLabel(busyo_data["country"])
-        if hensei_data["hensei"]["kind"] == 0:
+        kind = hensei_data["hensei"]["kind"]
+        if kind == 0:
             self.sub_1_suitable_label.SetLabel(busyo_data["horse"])
-        elif hensei_data["hensei"]["kind"] == 1:
+        elif kind == 1:
             self.sub_1_suitable_label.SetLabel(busyo_data["shield"])
-        elif hensei_data["hensei"]["kind"] == 2:
+        elif kind == 2:
             self.sub_1_suitable_label.SetLabel(busyo_data["bow"])
-        elif hensei_data["hensei"]["kind"] == 3:
+        elif kind == 3:
             self.sub_1_suitable_label.SetLabel(busyo_data["rance"])
-        else:
-            pass
-        self.sub_1_unique_senpo_label.SetLabel("TODO実装")
+        elif kind == 4:
+            self.sub_1_suitable_label.SetLabel(busyo_data["weapon"])
+        elif kind == 5:
+            self.sub_1_suitable_label.SetLabel(busyo_data["water"])
+
+        unique_senpo = StaticDataManager().get_senpo_by_id(busyo_data["org_skill"])
+        self.sub_1_unique_senpo_label.SetLabel(unique_senpo["name"])
+
         self.sub_1_senpo2_select_button.Enable()
-        self.sub_1_senpo2_select_button.SetLabel(LABEL_CHOICE)
+        if hensei_data["sub_1_unit"]["skill_2"] == -1:
+            self.sub_1_senpo2_select_button.SetLabel(LABEL_CHOICE)
+            self.sub_1_senpo2_select_button.SetForegroundColour(wx.BLACK)
+        else:
+            senpo_2 = StaticDataManager().get_senpo_by_id(hensei_data["sub_1_unit"]["skill_2"])
+            suitable_list = StaticDataManager().get_suitable_by_id(hensei_data["sub_1_unit"]["skill_2"])
+
+            if kind != 5 and suitable_list[kind] is not True:
+                self.sub_1_senpo2_select_button.SetForegroundColour(wx.RED)
+            else:
+                self.sub_1_senpo2_select_button.SetForegroundColour(wx.BLACK)
+            self.sub_1_senpo2_select_button.SetLabel(senpo_2["name"])
+
         self.sub_1_senpo3_select_button.Enable()
-        self.sub_1_senpo3_select_button.SetLabel(LABEL_CHOICE)
-        # TODO 兵法書関連
-        self.sub_1_heihousyo_choice.SetSelection(0)
-        self.sub_1_heihou1_choice.SetSelection(0)
-        self.sub_1_heihou2_choice.SetSelection(0)
-        self.sub_1_heihou3_choice.SetSelection(0)
+        if hensei_data["sub_1_unit"]["skill_3"] == -1:
+            self.sub_1_senpo3_select_button.SetLabel(LABEL_CHOICE)
+            self.sub_1_senpo3_select_button.SetForegroundColour(wx.BLACK)
+        else:
+            senpo_3 = StaticDataManager().get_senpo_by_id(hensei_data["sub_1_unit"]["skill_3"])
+            suitable_list = StaticDataManager().get_suitable_by_id(hensei_data["sub_1_unit"]["skill_3"])
+
+            if kind != 5 and suitable_list[kind] is not True:
+                self.sub_1_senpo3_select_button.SetForegroundColour(wx.RED)
+            else:
+                self.sub_1_senpo3_select_button.SetForegroundColour(wx.BLACK)
+            self.sub_1_senpo3_select_button.SetLabel(senpo_3["name"])
+        
+        self.sub_1_heihousyo_choice.Clear()
+        self.sub_1_heihou1_choice.Clear()
+        self.sub_1_heihou2_choice.Clear()
+        self.sub_1_heihou3_choice.Clear()
+
+        self.sub_1_heihousyo_choice.AppendItems(["作戦", "虚実", "軍形", "九変"])
+        sub_1_heihousyo = hensei_data["sub_1_unit"]["heihousyo"]
+        
+        self.sub_1_heihousyo_choice.SetSelection(sub_1_heihousyo - 1)
+        heihou_tuple = self.initialize_heihou(sub_1_heihousyo, busyo_data)
+        StatusManager().sub_1_heiho_2_3_tuple_list = heihou_tuple[1]
+        
+        for item in heihou_tuple[0]:
+            self.sub_1_heihou1_choice.Append(item[0], item[1])
+            
+        for item in heihou_tuple[1]:
+            self.sub_1_heihou2_choice.Append(item[0], item[1])
+            self.sub_1_heihou3_choice.Append(item[0], item[1])
+        
+        if hensei_data["sub_1_unit"]["heihou_1"] == -1:
+            self.sub_1_heihou1_choice.SetSelection(0)
+        else:
+            self.sub_1_heihou1_choice.SetSelection(self.sub_1_heihou1_choice.FindString(StaticDataManager.get_heiho_name_by_id_list([hensei_data["sub_1_unit"]["heihou_1"]])[0]))
+        self.update_heihou_choice(hensei_data["sub_1_unit"]["heihou_2"], 1, 2)
+        self.update_heihou_choice(hensei_data["sub_1_unit"]["heihou_3"], 1, 3)
 
         self.sub_1_rankup_choice.SetSelection(hensei_data["sub_1_unit"]["rankup"])
         if hensei_data["sub_1_unit"]["hizo"] == 0:
@@ -1561,8 +2010,16 @@ class TopFrame (wx.Frame):
         self.sub_1_battle_def_label.SetLabel("統率:" + LABEL_NOTHING)
         self.sub_1_battle_int_label.SetLabel("知力:" + LABEL_NOTHING)
         self.sub_1_battle_spd_label.SetLabel("速度:" + LABEL_NOTHING)
+        
+        self.sub_1_heihousyo_choice.Enable()
+        self.sub_1_heihou1_choice.Enable()
+        self.sub_1_heihou2_choice.Enable()
+        self.sub_1_heihou3_choice.Enable()
+        self.sub_1_rankup_choice.Enable()
+        self.sub_1_hizo_checkbox.Enable()
+        self.sub_1_anime_checkbox.Enable()
+        self.sub_1_eq_skill_select_button.Enable()
         return
-
 
     def update_sub_2_parameter(self, hensei_data):
         if hensei_data["hensei"]["sub_2_unit"] is None:
@@ -1574,26 +2031,77 @@ class TopFrame (wx.Frame):
         self.sub_2_unit_drop_button.Enable()
         self.sub_2_unit_select_button.SetLabel(busyo_data["name"])
         self.sub_2_country_label.SetLabel(busyo_data["country"])
-        if hensei_data["hensei"]["kind"] == 0:
+        kind = hensei_data["hensei"]["kind"]
+        if kind == 0:
             self.sub_2_suitable_label.SetLabel(busyo_data["horse"])
-        elif hensei_data["hensei"]["kind"] == 1:
+        elif kind == 1:
             self.sub_2_suitable_label.SetLabel(busyo_data["shield"])
-        elif hensei_data["hensei"]["kind"] == 2:
+        elif kind == 2:
             self.sub_2_suitable_label.SetLabel(busyo_data["bow"])
-        elif hensei_data["hensei"]["kind"] == 3:
+        elif kind == 3:
             self.sub_2_suitable_label.SetLabel(busyo_data["rance"])
-        else:
-            pass
-        self.sub_2_unique_senpo_label.SetLabel("TODO実装")
+        elif kind == 4:
+            self.sub_2_suitable_label.SetLabel(busyo_data["weapon"])
+        elif kind == 5:
+            self.sub_2_suitable_label.SetLabel(busyo_data["water"])
+        
+        unique_senpo = StaticDataManager().get_senpo_by_id(busyo_data["org_skill"])
+        self.sub_2_unique_senpo_label.SetLabel(unique_senpo["name"])
         self.sub_2_senpo2_select_button.Enable()
-        self.sub_2_senpo2_select_button.SetLabel(LABEL_CHOICE)
+        if hensei_data["sub_2_unit"]["skill_2"] == -1:
+            self.sub_2_senpo2_select_button.SetLabel(LABEL_CHOICE)
+            self.sub_2_senpo2_select_button.SetForegroundColour(wx.BLACK)
+        else:
+            senpo_2 = StaticDataManager().get_senpo_by_id(hensei_data["sub_2_unit"]["skill_2"])
+            suitable_list = StaticDataManager().get_suitable_by_id(hensei_data["sub_2_unit"]["skill_2"])
+
+            if kind != 5 and suitable_list[kind] is not True:
+                self.sub_2_senpo2_select_button.SetForegroundColour(wx.RED)
+            else:
+                self.sub_2_senpo2_select_button.SetForegroundColour(wx.BLACK)
+            self.sub_2_senpo2_select_button.SetLabel(senpo_2["name"])
+
         self.sub_2_senpo3_select_button.Enable()
-        self.sub_2_senpo3_select_button.SetLabel(LABEL_CHOICE)
-        # TODO 兵法書関連
-        self.sub_2_heihousyo_choice.SetSelection(0)
-        self.sub_2_heihou1_choice.SetSelection(0)
-        self.sub_2_heihou2_choice.SetSelection(0)
-        self.sub_2_heihou3_choice.SetSelection(0)
+        if hensei_data["sub_2_unit"]["skill_3"] == -1:
+            self.sub_2_senpo3_select_button.SetLabel(LABEL_CHOICE)
+            self.sub_2_senpo3_select_button.SetForegroundColour(wx.BLACK)
+        else:
+            senpo_3 = StaticDataManager().get_senpo_by_id(hensei_data["sub_2_unit"]["skill_3"])
+            suitable_list = StaticDataManager().get_suitable_by_id(hensei_data["sub_2_unit"]["skill_3"])
+
+            if kind != 5 and suitable_list[kind] is not True:
+                self.sub_2_senpo3_select_button.SetForegroundColour(wx.RED)
+            else:
+                self.sub_2_senpo3_select_button.SetForegroundColour(wx.BLACK)
+            self.sub_2_senpo3_select_button.SetLabel(senpo_3["name"])
+        
+        self.sub_2_heihousyo_choice.Clear()
+        self.sub_2_heihou1_choice.Clear()
+        self.sub_2_heihou2_choice.Clear()
+        self.sub_2_heihou3_choice.Clear()
+
+        self.sub_2_heihousyo_choice.AppendItems(["作戦", "虚実", "軍形", "九変"])
+        sub_2_heihousyo = hensei_data["sub_2_unit"]["heihousyo"]
+        
+        self.sub_2_heihousyo_choice.SetSelection(sub_2_heihousyo - 1)
+        heihou_tuple = self.initialize_heihou(sub_2_heihousyo, busyo_data)
+        print(heihou_tuple[1])
+        StatusManager().sub_2_heiho_2_3_tuple_list = heihou_tuple[1]
+        
+        for item in heihou_tuple[0]:
+            self.sub_2_heihou1_choice.Append(item[0], item[1])
+            
+        for item in heihou_tuple[1]:
+            self.sub_2_heihou2_choice.Append(item[0], item[1])
+            self.sub_2_heihou3_choice.Append(item[0], item[1])
+        
+        if hensei_data["sub_2_unit"]["heihou_1"] == -1:
+            self.sub_2_heihou1_choice.SetSelection(0)
+
+        else:
+            self.sub_2_heihou1_choice.SetSelection(self.sub_2_heihou1_choice.FindString(StaticDataManager.get_heiho_name_by_id_list([hensei_data["sub_2_unit"]["heihou_1"]])[0]))
+        self.update_heihou_choice(hensei_data["sub_2_unit"]["heihou_2"], 2, 2)
+        self.update_heihou_choice(hensei_data["sub_2_unit"]["heihou_3"], 2, 3)
         
         self.sub_2_rankup_choice.SetSelection(hensei_data["sub_1_unit"]["rankup"])
         if hensei_data["sub_2_unit"]["hizo"] == 0:
@@ -1625,6 +2133,43 @@ class TopFrame (wx.Frame):
         self.sub_2_battle_def_label.SetLabel("統率:" + LABEL_NOTHING)
         self.sub_2_battle_int_label.SetLabel("知力:" + LABEL_NOTHING)
         self.sub_2_battle_spd_label.SetLabel("速度:" + LABEL_NOTHING)
+        
+        self.sub_2_heihousyo_choice.Enable()
+        self.sub_2_heihou1_choice.Enable()
+        self.sub_2_heihou2_choice.Enable()
+        self.sub_2_heihou3_choice.Enable()
+        self.sub_2_rankup_choice.Enable()
+        self.sub_2_hizo_checkbox.Enable()
+        self.sub_2_anime_checkbox.Enable()
+        self.sub_2_eq_skill_select_button.Enable()
+        return
+
+    def change_hensei(self, event):
+        event_id = event.GetId()
+        hensei_id = 1
+        if event_id == ID_CHANGE_HENSEI_1:
+            hensei_id = 1
+        elif event_id == ID_CHANGE_HENSEI_2:
+            hensei_id = 2
+        elif event_id == ID_CHANGE_HENSEI_3:
+            hensei_id = 3
+        elif event_id == ID_CHANGE_HENSEI_4:
+            hensei_id = 4
+        elif event_id == ID_CHANGE_HENSEI_5:
+            hensei_id = 5
+        elif event_id == ID_CHANGE_HENSEI_6:
+            hensei_id = 6
+        elif event_id == ID_CHANGE_HENSEI_7:
+            hensei_id = 7
+        elif event_id == ID_CHANGE_HENSEI_8:
+            hensei_id = 8
+        elif event_id == ID_CHANGE_HENSEI_9:
+            hensei_id = 9
+        elif event_id == ID_CHANGE_HENSEI_10:
+            hensei_id = 10
+
+        StatusManager().selected_hensei = hensei_id
+        self.initialize_parameter()
         return
 
     def initialize_parameter(self):
@@ -1632,7 +2177,7 @@ class TopFrame (wx.Frame):
         selected_hensei_id = status_manager.selected_hensei
         hensei_manager = HenseiDataManager()
         hensei_data = hensei_manager.get_hensei_data(selected_hensei_id)
-        self.update_selected_hensei(selected_hensei_id)
+        self.update_selected_hensei_button(selected_hensei_id)
 
         self.update_common_parameter(hensei_data)
 
@@ -1650,6 +2195,16 @@ class TopFrame (wx.Frame):
         self.main_unique_senpo_label.SetLabel(LABEL_NOTHING)
         self.main_senpo2_select_button.Disable()
         self.main_senpo3_select_button.Disable()
+        self.main_senpo2_select_button.SetLabel(LABEL_CHOICE)
+        self.main_senpo3_select_button.SetLabel(LABEL_CHOICE)
+        for i in range(self.main_heihousyo_choice.GetCount()):
+            self.main_heihousyo_choice.Delete(0)
+        for i in range(self.main_heihou1_choice.GetCount()):
+            self.main_heihou1_choice.Delete(0)
+        for i in range(self.main_heihou2_choice.GetCount()):
+            self.main_heihou2_choice.Delete(0)
+        for i in range(self.main_heihou3_choice.GetCount()):
+            self.main_heihou3_choice.Delete(0)
         self.main_heihousyo_choice.SetSelection(0)
         self.main_heihou1_choice.SetSelection(0)
         self.main_heihou2_choice.SetSelection(0)
@@ -1658,6 +2213,13 @@ class TopFrame (wx.Frame):
         self.main_hizo_checkbox.SetValue(False)
         self.main_anime_checkbox.SetValue(False)
         self.main_remained_point_label.SetLabel(LABEL_ZERO)
+        self.main_heihousyo_choice.Disable()
+        self.main_heihou1_choice.Disable()
+        self.main_heihou2_choice.Disable()
+        self.main_heihou3_choice.Disable()
+        self.main_rankup_choice.Disable()
+        self.main_hizo_checkbox.Disable()
+        self.main_anime_checkbox.Disable()
         self.main_str_point_text_ctrl.Clear()
         self.main_def_point_text_ctrl.Clear()
         self.main_int_point_text_ctrl.Clear()
@@ -1666,6 +2228,7 @@ class TopFrame (wx.Frame):
         self.main_def_point_eq_text_ctrl.Clear()
         self.main_int_point_eq_text_ctrl.Clear()
         self.main_spd_point_eq_text_ctrl.Clear()
+        self.main_eq_skill_select_button.Disable()
         self.main_eq_skill_label.SetLabel(LABEL_NOTHING)
         self.main_normal_str_label.SetLabel("武力:" + LABEL_NOTHING)
         self.main_normal_def_label.SetLabel("統率:" + LABEL_NOTHING)
@@ -1684,6 +2247,16 @@ class TopFrame (wx.Frame):
         self.sub_1_unique_senpo_label.SetLabel(LABEL_NOTHING)
         self.sub_1_senpo2_select_button.Disable()
         self.sub_1_senpo3_select_button.Disable()
+        self.sub_1_senpo2_select_button.SetLabel(LABEL_CHOICE)
+        self.sub_1_senpo3_select_button.SetLabel(LABEL_CHOICE)
+        for i in range(self.sub_1_heihousyo_choice.GetCount()):
+            self.sub_1_heihousyo_choice.Delete(0)
+        for i in range(self.sub_1_heihou1_choice.GetCount()):
+            self.sub_1_heihou1_choice.Delete(0)
+        for i in range(self.sub_1_heihou2_choice.GetCount()):
+            self.sub_1_heihou2_choice.Delete(0)
+        for i in range(self.sub_1_heihou3_choice.GetCount()):
+            self.sub_1_heihou3_choice.Delete(0)
         self.sub_1_heihousyo_choice.SetSelection(0)
         self.sub_1_heihou1_choice.SetSelection(0)
         self.sub_1_heihou2_choice.SetSelection(0)
@@ -1692,6 +2265,13 @@ class TopFrame (wx.Frame):
         self.sub_1_hizo_checkbox.SetValue(False)
         self.sub_1_anime_checkbox.SetValue(False)
         self.sub_1_remained_point_label.SetLabel(LABEL_ZERO)
+        self.sub_1_heihousyo_choice.Disable()
+        self.sub_1_heihou1_choice.Disable()
+        self.sub_1_heihou2_choice.Disable()
+        self.sub_1_heihou3_choice.Disable()
+        self.sub_1_rankup_choice.Disable()
+        self.sub_1_hizo_checkbox.Disable()
+        self.sub_1_anime_checkbox.Disable()
         self.sub_1_str_point_text_ctrl.Clear()
         self.sub_1_def_point_text_ctrl.Clear()
         self.sub_1_int_point_text_ctrl.Clear()
@@ -1700,6 +2280,7 @@ class TopFrame (wx.Frame):
         self.sub_1_def_point_eq_text_ctrl.Clear()
         self.sub_1_int_point_eq_text_ctrl.Clear()
         self.sub_1_spd_point_eq_text_ctrl.Clear()
+        self.sub_1_eq_skill_select_button.Disable()
         self.sub_1_eq_skill_label.SetLabel(LABEL_NOTHING)
         self.sub_1_normal_str_label.SetLabel("武力:" + LABEL_NOTHING)
         self.sub_1_normal_def_label.SetLabel("統率:" + LABEL_NOTHING)
@@ -1718,13 +2299,30 @@ class TopFrame (wx.Frame):
         self.sub_2_unique_senpo_label.SetLabel(LABEL_NOTHING)
         self.sub_2_senpo2_select_button.Disable()
         self.sub_2_senpo3_select_button.Disable()
+        self.sub_2_senpo2_select_button.SetLabel(LABEL_CHOICE)
+        self.sub_2_senpo3_select_button.SetLabel(LABEL_CHOICE)
+        for i in range(self.sub_2_heihousyo_choice.GetCount()):
+            self.sub_2_heihousyo_choice.Delete(0)
+        for i in range(self.sub_2_heihou1_choice.GetCount()):
+            self.sub_2_heihou1_choice.Delete(0)
+        for i in range(self.sub_2_heihou2_choice.GetCount()):
+            self.sub_2_heihou2_choice.Delete(0)
+        for i in range(self.sub_2_heihou3_choice.GetCount()):
+            self.sub_2_heihou3_choice.Delete(0)
         self.sub_2_heihousyo_choice.SetSelection(0)
+        self.sub_2_heihousyo_choice.Disable()
         self.sub_2_heihou1_choice.SetSelection(0)
         self.sub_2_heihou2_choice.SetSelection(0)
         self.sub_2_heihou3_choice.SetSelection(0)
+        self.sub_2_heihou1_choice.Disable()
+        self.sub_2_heihou2_choice.Disable()
+        self.sub_2_heihou3_choice.Disable()
         self.sub_2_rankup_choice.SetSelection(0)
         self.sub_2_hizo_checkbox.SetValue(False)
         self.sub_2_anime_checkbox.SetValue(False)
+        self.sub_2_rankup_choice.Disable()
+        self.sub_2_hizo_checkbox.Disable()
+        self.sub_2_anime_checkbox.Disable()
         self.sub_2_remained_point_label.SetLabel(LABEL_ZERO)
         self.sub_2_str_point_text_ctrl.Clear()
         self.sub_2_def_point_text_ctrl.Clear()
@@ -1734,6 +2332,7 @@ class TopFrame (wx.Frame):
         self.sub_2_def_point_eq_text_ctrl.Clear()
         self.sub_2_int_point_eq_text_ctrl.Clear()
         self.sub_2_spd_point_eq_text_ctrl.Clear()
+        self.sub_2_eq_skill_select_button.Disable()
         self.sub_2_eq_skill_label.SetLabel(LABEL_NOTHING)
         self.sub_2_normal_str_label.SetLabel("武力:" + LABEL_NOTHING)
         self.sub_2_normal_def_label.SetLabel("統率:" + LABEL_NOTHING)
@@ -1744,7 +2343,7 @@ class TopFrame (wx.Frame):
         self.sub_2_battle_int_label.SetLabel("知力:" + LABEL_NOTHING)
         self.sub_2_battle_spd_label.SetLabel("速度:" + LABEL_NOTHING)
 
-    def update_selected_hensei(self, hensei_id):
+    def update_selected_hensei_button(self, hensei_id):
         button_list = [
             self.h_select_1_button,
             self.h_select_2_button,
@@ -1790,12 +2389,83 @@ class TopFrame (wx.Frame):
             hensei_manager = HenseiDataManager()
             selected_hensei = StatusManager().selected_hensei
 
+            hensei_manager.delete_busyo(unit_id, selected_hensei)
             hensei_manager.set_busyo(busyo_id, unit_id, selected_hensei)
             hensei_data = hensei_manager.get_hensei_data(selected_hensei)
 
             self.update_parameter(hensei_data, unit_id)
 
         select_window.Destroy()
+
+    def show_senpo_select(self, event):
+        try:
+            select_window = SenpoSelect(self)
+            result = select_window.ShowModal()
+        except Exception as e:
+            print(e)
+        if result == wx.ID_CANCEL:
+            print("canceled")
+        else:
+            senpo_id = result - wx.ID_HIGHEST
+
+            unit_id = 0
+            button_id = 0
+
+            if event.GetId() == ID_SELECT_MAIN_SENPO_2:
+                unit_id = 0
+                button_id = 0
+            elif event.GetId() == ID_SELECT_MAIN_SENPO_3:
+                unit_id = 0
+                button_id = 1
+            elif event.GetId() == ID_SELECT_SUB_1_SENPO_2:
+                unit_id = 1
+                button_id = 0
+            elif event.GetId() == ID_SELECT_SUB_1_SENPO_3:
+                unit_id = 1
+                button_id = 1
+            elif event.GetId() == ID_SELECT_SUB_2_SENPO_2:
+                unit_id = 2
+                button_id = 0
+            elif event.GetId() == ID_SELECT_SUB_2_SENPO_3:
+                unit_id = 2
+                button_id = 1
+            else:
+                pass
+            
+            print(unit_id)
+            print(button_id)
+
+            hensei_manager = HenseiDataManager()
+            selected_hensei = StatusManager().selected_hensei
+
+            hensei_manager.set_senpo(senpo_id, unit_id, button_id, selected_hensei)
+            hensei_data = hensei_manager.get_hensei_data(selected_hensei)
+
+            self.update_parameter(hensei_data, unit_id)
+
+        select_window.Destroy()
+
+    def get_selected_hensei_data(self):
+        hensei_manager = HenseiDataManager()
+        selected_hensei = StatusManager().selected_hensei
+        hensei_data = hensei_manager.get_hensei_data(selected_hensei)
+        return hensei_data
+    
+    def drop_unit(self, event):
+        hensei_id = StatusManager().selected_hensei
+        if event.GetId() == ID_SELECT_CLEAR_MAIN:
+            HenseiDataManager().delete_busyo(0, hensei_id)
+            self.clear_main_unit()
+            StatusManager.main_heiho_2_3_tuple_list = []
+        elif event.GetId() == ID_SELECT_CLEAR_SUB_1:
+            HenseiDataManager().delete_busyo(1, hensei_id)
+            self.clear_sub_1_unit()
+            StatusManager.sub_1_heiho_2_3_tuple_list = []
+        elif event.GetId() == ID_SELECT_CLEAR_SUB_2:
+            HenseiDataManager().delete_busyo(2, hensei_id)
+            self.clear_sub_2_unit()
+            StatusManager.sub_2_heiho_2_3_tuple_list = []
+        
 
     def __del__(self):
         pass

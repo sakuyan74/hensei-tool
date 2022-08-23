@@ -62,8 +62,29 @@ class HenseiDataManager():
         return cls.hensei_dao.get_selected_busyo_list()
     
     @classmethod
+    def get_selected_senpo_list(cls):
+        return cls.hensei_dao.get_selected_senpo_list()
+
+    @classmethod
     def set_busyo(cls, busyo_id, unit, hensei_id):
         return cls.hensei_dao.set_busyo(busyo_id, unit, hensei_id)
+
+    @classmethod
+    def set_senpo(cls, busyo_id, unit, button, hensei_id):
+        return cls.hensei_dao.set_senpo(busyo_id, unit, button, hensei_id)
+
+    @classmethod
+    def set_heiho(cls, heiho_id, unit, index, hensei_id):
+        return cls.hensei_dao.set_heiho(heiho_id, unit, index, hensei_id)
+    
+    @classmethod
+    def delete_busyo(cls, unit, hensei_id):
+        return cls.hensei_dao.delete_busyo(unit, hensei_id)
+    
+    @classmethod
+    def update_kind(cls, kind, hensei_id):
+        return cls.hensei_dao.update_kind(kind, hensei_id)
+
 
 class HenseiDAO():
     def __init__(self) -> None:
@@ -96,9 +117,43 @@ class HenseiDAO():
         if hensei_result["hensei"]['sub_2_unit'] is not None:
             cur.execute('SELECT ' + '*' + ' from ' + UNIT_TABLE_NAME + ' WHERE unit_id = ?', (hensei_result["hensei"]['sub_2_unit'],))
             hensei_result["sub_2_unit"] = dict(cur.fetchone())
-        conn.close
+        conn.close()
 
         return hensei_result
+
+    def get_selected_senpo_list(self):
+        senpo_list = []
+        conn = sqlite3.connect(DB_NAME)
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+        cur.execute('SELECT ' + '*' + ' from ' + HENSEI_TABLE_NAME)
+
+        # TODO 選択済みの武将をリストアップ処理
+        result = cur.fetchall()
+
+        for item in result:
+            item = dict(item)
+            if item['main_unit'] is not None:
+                cur.execute('SELECT ' + '*' + ' from ' + UNIT_TABLE_NAME + ' WHERE unit_id = ?', (item['main_unit'],))
+                unit_data = dict(cur.fetchone())
+                senpo_list.append(unit_data["skill_2"])
+                senpo_list.append(unit_data["skill_3"])
+            if item['sub_1_unit'] is not None:
+                cur.execute('SELECT ' + '*' + ' from ' + UNIT_TABLE_NAME + ' WHERE unit_id = ?', (item['sub_1_unit'],))
+                unit_data = dict(cur.fetchone())
+                senpo_list.append(unit_data["skill_2"])
+                senpo_list.append(unit_data["skill_3"])
+            if item['sub_2_unit'] is not None:
+                cur.execute('SELECT ' + '*' + ' from ' + UNIT_TABLE_NAME + ' WHERE unit_id = ?', (item['sub_2_unit'],))
+                unit_data = dict(cur.fetchone())
+                senpo_list.append(unit_data["skill_2"])
+                senpo_list.append(unit_data["skill_3"])
+
+        conn.close()
+
+        senpo_list = list(filter(lambda x: x != -1, senpo_list))
+
+        return senpo_list
 
     def get_selected_busyo_list(self):
         busyo_list = []
@@ -108,8 +163,22 @@ class HenseiDAO():
         cur.execute('SELECT ' + '*' + ' from ' + HENSEI_TABLE_NAME)
 
         # TODO 選択済みの武将をリストアップ処理
+        result = cur.fetchall()
+        
+        for item in result:
+            item = dict(item)
+            if item['main_unit'] is not None:
+                cur.execute('SELECT ' + '*' + ' from ' + UNIT_TABLE_NAME + ' WHERE unit_id = ?', (item['main_unit'],))
+                busyo_list.append(dict(cur.fetchone())["busyo"])
+            if item['sub_1_unit'] is not None:
+                cur.execute('SELECT ' + '*' + ' from ' + UNIT_TABLE_NAME + ' WHERE unit_id = ?', (item['sub_1_unit'],))
+                busyo_list.append(dict(cur.fetchone())["busyo"])
+            if item['sub_2_unit'] is not None:
+                cur.execute('SELECT ' + '*' + ' from ' + UNIT_TABLE_NAME + ' WHERE unit_id = ?', (item['sub_2_unit'],))
+                busyo_list.append(dict(cur.fetchone())["busyo"])
 
-        conn.close
+        conn.close()
+        print(busyo_list)
         return busyo_list
 
     def select_all(self, table):
@@ -169,7 +238,7 @@ class HenseiDAO():
     def set_busyo(self, busyo_id, unit, hensei_id):
         conn = sqlite3.connect(DB_NAME)
         cur = conn.cursor()
-        data = [busyo_id, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, []]
+        data = [busyo_id, -1, -1, 1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, []]
         cur.execute("INSERT INTO " + UNIT_TABLE_NAME + UNIT_INSERT_TABLE_COLUMN + " values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", data)
         unit_id = cur.lastrowid
         if unit == 0:
@@ -186,4 +255,96 @@ class HenseiDAO():
         conn.commit()
         conn.close()
 
+        return
+
+    def set_senpo(self, senpo_id, unit, button, hensei_id):
+        conn = sqlite3.connect(DB_NAME)
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+        cur.execute('SELECT ' + '*' + ' from ' + HENSEI_TABLE_NAME + ' WHERE hensei_id = ?', (hensei_id,))
+        hensei = dict(cur.fetchone())
+        if unit == 0:
+            unit_id = hensei["main_unit"]
+        elif unit == 1:
+            unit_id = hensei["sub_1_unit"]
+        elif unit == 2:
+            unit_id = hensei["sub_2_unit"]
+        else:
+            pass
+
+        if button == 0:
+            col = "skill_2"
+        else:
+            col = "skill_3"
+
+        cur.execute("UPDATE " + UNIT_TABLE_NAME + " set " + col + "=? where unit_id=?", (senpo_id, unit_id))
+
+        conn.commit()
+        conn.close()
+
+        return
+
+    def set_heiho(self, heiho_id, unit, index, hensei_id):
+        conn = sqlite3.connect(DB_NAME)
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+        cur.execute('SELECT ' + '*' + ' from ' + HENSEI_TABLE_NAME + ' WHERE hensei_id = ?', (hensei_id,))
+        hensei = dict(cur.fetchone())
+        if unit == 0:
+            unit_id = hensei["main_unit"]
+        elif unit == 1:
+            unit_id = hensei["sub_1_unit"]
+        elif unit == 2:
+            unit_id = hensei["sub_2_unit"]
+        else:
+            pass
+
+        if index == 0:
+            col = "heihousyo"
+        elif index == 1:
+            col = "heihou_1"
+        elif index == 2:
+            col = "heihou_2"
+        else:
+            col = "heihou_3"
+
+        cur.execute("UPDATE " + UNIT_TABLE_NAME + " set " + col + "=? where unit_id=?", (heiho_id, unit_id))
+
+        conn.commit()
+        conn.close()
+        return
+
+    def delete_busyo(self, unit, hensei_id):
+        conn = sqlite3.connect(DB_NAME)
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+        cur.execute('SELECT ' + '*' + ' from ' + HENSEI_TABLE_NAME + ' WHERE hensei_id = ?', (hensei_id,))
+        hensei = dict(cur.fetchone())
+        if unit == 0:
+            unit_id = hensei["main_unit"]
+            col = "main_unit"
+        elif unit == 1:
+            unit_id = hensei["sub_1_unit"]
+            col = "sub_1_unit"
+        elif unit == 2:
+            unit_id = hensei["sub_2_unit"]
+            col = "sub_2_unit"
+        else:
+            pass
+
+        cur.execute("UPDATE " + HENSEI_TABLE_NAME + " set " + col + "=? where hensei_id=?", (None, hensei_id))
+        cur.execute("DELETE FROM " + UNIT_TABLE_NAME + " where unit_id=?", (unit_id,))
+
+        conn.commit()
+        conn.close()
+        return
+    
+    def update_kind(self, kind, hensei_id):
+        conn = sqlite3.connect(DB_NAME)
+        cur = conn.cursor()
+
+        cur.execute("UPDATE " + HENSEI_TABLE_NAME + " set kind=? where hensei_id=?", (kind, hensei_id))
+        
+        conn.commit()
+        conn.close()
         return

@@ -27,9 +27,8 @@ class UnitSelect(wx.Dialog):
 
         self.name_filter_text_ctrl = wx.TextCtrl(self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0)
         bSizer116.Add(self.name_filter_text_ctrl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        self.reset_button = wx.Button(self, wx.ID_ANY, u"Reset", wx.DefaultPosition, wx.DefaultSize, 0)
-        bSizer116.Add(self.reset_button, 0, wx.ALL, 5)
+        
+        self.Bind(wx.EVT_TEXT, self.OnFilterText, self.name_filter_text_ctrl)
 
         bSizer113.Add(bSizer116, 0, wx.EXPAND, 5)
 
@@ -68,6 +67,11 @@ class UnitSelect(wx.Dialog):
         print(busyo_id)
         self.EndModal(wx.ID_HIGHEST + busyo_id)
 
+    def OnFilterText(self, event):
+        key = self.name_filter_text_ctrl.GetValue()
+        self.busyo_table.set_filter_key(key)
+        return
+
     def __del__(self):
         pass
 
@@ -91,6 +95,7 @@ class BusyoTable(wx.ListCtrl):
         self.Bind(wx.EVT_LIST_COL_CLICK, self.Sort)
         self.prevColumn = None
         self.sortAcend = True
+        self.filter_key = ""
 
     def Sort(self, event):
         col = event.GetColumn()
@@ -112,12 +117,36 @@ class BusyoTable(wx.ListCtrl):
             else:
                 self.items.sort(key=lambda x: x[col], reverse=True)
         self.prevColumn = col
+        if self.filter_key == "":
+            self.DeleteAllItems()
+            self.SetItemCount(len(self.items))
+            return
+        items = list(filter(lambda x: self.filter_key in x[0], self.items))
         self.DeleteAllItems()
-        self.SetItemCount(len(self.items))
+        self.SetItemCount(len(items))
 
     def OnGetItemText(self, line, col):
-        return self.items[line][col]
+        if self.filter_key == "":
+            return self.items[line][col]
+        else:
+            items = list(filter(lambda x: self.filter_key in x[0], self.items))
+            return items[line][col]
 
     def get_busyo_id(self, index):
-        name = self.items[index][0]
+        if self.filter_key == "":
+            name = self.items[index][0]
+        else:
+            items = list(filter(lambda x: self.filter_key in x[0], self.items))
+            name = items[index][0]
         return self.static_manager.get_busyo_id_by_name(name)
+    
+    def set_filter_key(self, key):
+        self.filter_key = key
+        if self.filter_key == "":
+            self.DeleteAllItems()
+            self.SetItemCount(len(self.items))
+            return
+        items = list(filter(lambda x: self.filter_key in x[0], self.items))
+        self.DeleteAllItems()
+        self.SetItemCount(len(items))
+        return
