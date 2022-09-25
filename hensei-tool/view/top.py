@@ -3,6 +3,7 @@ import wx
 import wx.xrc
 from view.busyo_search import UnitSelect
 from view.senpo_search import SenpoSelect
+from view.show_list import ShowList
 from hensei_data_manager import HenseiDataManager
 from static_data_manager import StaticDataManager
 from status_manager import StatusManager
@@ -56,37 +57,250 @@ class TopFrame (wx.Frame):
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
         self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_INACTIVEBORDER))
 
-        bSizer5 = wx.BoxSizer(wx.VERTICAL)
+        frame_base_box = wx.BoxSizer(wx.VERTICAL)
 
-        self.m_panel4 = wx.Panel(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
-        self.m_panel4.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_INACTIVEBORDER))
+        # 操作パネル
+        self.control_panel = wx.Panel(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+        self.control_panel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_INACTIVEBORDER))
+        self.create_control_panel()
+        frame_base_box.Add(self.control_panel, 0, wx.EXPAND | wx.ALL, 5)
 
-        sbSizer7 = wx.StaticBoxSizer(wx.StaticBox(self.m_panel4, wx.ID_ANY, u"操作"), wx.VERTICAL)
+        # 編成パネル
+        self.hensei_panel = wx.Panel(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+        bSizer89 = wx.BoxSizer(wx.HORIZONTAL)
+        self.m_panel1 = wx.Panel(self.hensei_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+        self.create_hensei_select_panel()
+        bSizer89.Add(self.m_panel1, 0, wx.EXPAND | wx.ALL, 5)
 
-        bSizer14 = wx.BoxSizer(wx.HORIZONTAL)
+        # 編成編集ベースパネル
+        self.hensei_edit_base_panel = wx.Panel(self.hensei_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+        hensei_base_box = wx.BoxSizer(wx.VERTICAL)
 
-        self.output_button = wx.Button(sbSizer7.GetStaticBox(), wx.ID_ANY, u"編成セット出力", wx.DefaultPosition, wx.DefaultSize, 0)
-        bSizer14.Add(self.output_button, 0, wx.ALL, 5)
+        # 編成共通パネル
+        self.hensei_common_panel = wx.Panel(self.hensei_edit_base_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+        self.create_common_panel()
+        hensei_base_box.Add(self.hensei_common_panel, 0, wx.ALL, 5)
+
+        # 編成編集パネル
+        self.hensei_edit_panel = wx.Panel(self.hensei_edit_base_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+        self.create_hensei_setting_panel()
+        hensei_base_box.Add(self.hensei_edit_panel, 0, wx.ALL | wx.EXPAND, 5)
+
+        # ステータス配分パネル
+        self.hensei_status_edit_panel = wx.Panel(self.hensei_edit_base_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+        self.create_status_setting_panel()
+        hensei_base_box.Add(self.hensei_status_edit_panel, 0, wx.EXPAND | wx.ALL, 5)
+        
+        # ステータス表示部分
+        self.hensei_status_show_base_box = wx.StaticBoxSizer(wx.StaticBox(self.hensei_edit_base_panel, wx.ID_ANY, u"ステータス"), wx.HORIZONTAL)
+        self.create_status_show_box()
+
+        hensei_base_box.Add(self.hensei_status_show_base_box, 0, wx.EXPAND, 5)
+
+        self.hensei_edit_base_panel.SetSizer(hensei_base_box)
+        self.hensei_edit_base_panel.Layout()
+        hensei_base_box.Fit(self.hensei_edit_base_panel)
+        bSizer89.Add(self.hensei_edit_base_panel, 1, wx.EXPAND | wx.ALL, 5)
+
+        self.hensei_panel.SetSizer(bSizer89)
+        self.hensei_panel.Layout()
+        bSizer89.Fit(self.hensei_panel)
+        frame_base_box.Add(self.hensei_panel, 1, wx.EXPAND | wx.ALL, 5)
+
+        self.SetSizer(frame_base_box)
+        self.Layout()
+
+        self.Centre(wx.BOTH)
+
+        self.initialize_parameter()
+
+        return
+    
+    def create_status_show_box(self):
+        sbSizer33 = wx.StaticBoxSizer(wx.StaticBox(self.hensei_status_show_base_box.GetStaticBox(), wx.ID_ANY, u"主将"), wx.VERTICAL)
+
+        sbSizer34 = wx.StaticBoxSizer(wx.StaticBox(sbSizer33.GetStaticBox(), wx.ID_ANY, u"通常"), wx.HORIZONTAL)
+
+        self.main_normal_str_label = wx.StaticText(sbSizer34.GetStaticBox(), wx.ID_ANY, u"武力：100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.main_normal_str_label.Wrap(-1)
+
+        sbSizer34.Add(self.main_normal_str_label, 0, wx.ALL, 5)
+
+        self.main_normal_def_label = wx.StaticText(sbSizer34.GetStaticBox(), wx.ID_ANY, u"統率:100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.main_normal_def_label.Wrap(-1)
+
+        sbSizer34.Add(self.main_normal_def_label, 0, wx.ALL, 5)
+
+        self.main_normal_int_label = wx.StaticText(sbSizer34.GetStaticBox(), wx.ID_ANY, u"知力:100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.main_normal_int_label.Wrap(-1)
+
+        sbSizer34.Add(self.main_normal_int_label, 0, wx.ALL, 5)
+
+        self.main_normal_spd_label = wx.StaticText(sbSizer34.GetStaticBox(), wx.ID_ANY, u"速度:100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.main_normal_spd_label.Wrap(-1)
+
+        sbSizer34.Add(self.main_normal_spd_label, 0, wx.ALL, 5)
+
+        sbSizer33.Add(sbSizer34, 0, wx.EXPAND, 5)
+
+        sbSizer35 = wx.StaticBoxSizer(wx.StaticBox(sbSizer33.GetStaticBox(), wx.ID_ANY, u"戦闘開始時"), wx.HORIZONTAL)
+
+        self.main_battle_str_label = wx.StaticText(sbSizer35.GetStaticBox(), wx.ID_ANY, u"武力：100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.main_battle_str_label.Wrap(-1)
+
+        sbSizer35.Add(self.main_battle_str_label, 0, wx.ALL, 5)
+
+        self.main_battle_def_label = wx.StaticText(sbSizer35.GetStaticBox(), wx.ID_ANY, u"統率:100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.main_battle_def_label.Wrap(-1)
+
+        sbSizer35.Add(self.main_battle_def_label, 0, wx.ALL, 5)
+
+        self.main_battle_int_label = wx.StaticText(sbSizer35.GetStaticBox(), wx.ID_ANY, u"知力:100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.main_battle_int_label.Wrap(-1)
+
+        sbSizer35.Add(self.main_battle_int_label, 0, wx.ALL, 5)
+
+        self.main_battle_spd_label = wx.StaticText(sbSizer35.GetStaticBox(), wx.ID_ANY, u"速度:100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.main_battle_spd_label.Wrap(-1)
+
+        sbSizer35.Add(self.main_battle_spd_label, 0, wx.ALL, 5)
+
+        sbSizer33.Add(sbSizer35, 0, wx.EXPAND, 5)
+
+        self.hensei_status_show_base_box.Add(sbSizer33, 1, wx.EXPAND, 5)
+
+        sbSizer331 = wx.StaticBoxSizer(wx.StaticBox(self.hensei_status_show_base_box.GetStaticBox(), wx.ID_ANY, u"副将1"), wx.VERTICAL)
+
+        sbSizer341 = wx.StaticBoxSizer(wx.StaticBox(sbSizer331.GetStaticBox(), wx.ID_ANY, u"通常"), wx.HORIZONTAL)
+
+        self.sub_1_normal_str_label = wx.StaticText(sbSizer341.GetStaticBox(), wx.ID_ANY, u"武力：100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_1_normal_str_label.Wrap(-1)
+
+        sbSizer341.Add(self.sub_1_normal_str_label, 0, wx.ALL, 5)
+
+        self.sub_1_normal_def_label = wx.StaticText(sbSizer341.GetStaticBox(), wx.ID_ANY, u"統率:100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_1_normal_def_label.Wrap(-1)
+
+        sbSizer341.Add(self.sub_1_normal_def_label, 0, wx.ALL, 5)
+
+        self.sub_1_normal_int_label = wx.StaticText(sbSizer341.GetStaticBox(), wx.ID_ANY, u"知力:100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_1_normal_int_label.Wrap(-1)
+
+        sbSizer341.Add(self.sub_1_normal_int_label, 0, wx.ALL, 5)
+
+        self.sub_1_normal_spd_label = wx.StaticText(sbSizer341.GetStaticBox(), wx.ID_ANY, u"速度:100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_1_normal_spd_label.Wrap(-1)
+
+        sbSizer341.Add(self.sub_1_normal_spd_label, 0, wx.ALL, 5)
+
+        sbSizer331.Add(sbSizer341, 0, wx.EXPAND, 5)
+
+        sbSizer351 = wx.StaticBoxSizer(wx.StaticBox(sbSizer331.GetStaticBox(), wx.ID_ANY, u"戦闘開始時"), wx.HORIZONTAL)
+
+        self.sub_1_battle_str_label = wx.StaticText(sbSizer351.GetStaticBox(), wx.ID_ANY, u"武力：100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_1_battle_str_label.Wrap(-1)
+
+        sbSizer351.Add(self.sub_1_battle_str_label, 0, wx.ALL, 5)
+
+        self.sub_1_battle_def_label = wx.StaticText(sbSizer351.GetStaticBox(), wx.ID_ANY, u"統率:100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_1_battle_def_label.Wrap(-1)
+
+        sbSizer351.Add(self.sub_1_battle_def_label, 0, wx.ALL, 5)
+
+        self.sub_1_battle_int_label = wx.StaticText(sbSizer351.GetStaticBox(), wx.ID_ANY, u"知力:100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_1_battle_int_label.Wrap(-1)
+
+        sbSizer351.Add(self.sub_1_battle_int_label, 0, wx.ALL, 5)
+
+        self.sub_1_battle_spd_label = wx.StaticText(sbSizer351.GetStaticBox(), wx.ID_ANY, u"速度:100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_1_battle_spd_label.Wrap(-1)
+
+        sbSizer351.Add(self.sub_1_battle_spd_label, 0, wx.ALL, 5)
+
+        sbSizer331.Add(sbSizer351, 0, wx.EXPAND, 5)
+
+        self.hensei_status_show_base_box.Add(sbSizer331, 1, wx.EXPAND, 5)
+
+        sbSizer332 = wx.StaticBoxSizer(wx.StaticBox(self.hensei_status_show_base_box.GetStaticBox(), wx.ID_ANY, u"副将2"), wx.VERTICAL)
+
+        sbSizer342 = wx.StaticBoxSizer(wx.StaticBox(sbSizer332.GetStaticBox(), wx.ID_ANY, u"通常"), wx.HORIZONTAL)
+
+        self.sub_2_normal_str_label = wx.StaticText(sbSizer342.GetStaticBox(), wx.ID_ANY, u"武力：100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_2_normal_str_label.Wrap(-1)
+
+        sbSizer342.Add(self.sub_2_normal_str_label, 0, wx.ALL, 5)
+
+        self.sub_2_normal_def_label = wx.StaticText(sbSizer342.GetStaticBox(), wx.ID_ANY, u"統率:100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_2_normal_def_label.Wrap(-1)
+
+        sbSizer342.Add(self.sub_2_normal_def_label, 0, wx.ALL, 5)
+
+        self.sub_2_normal_int_label = wx.StaticText(sbSizer342.GetStaticBox(), wx.ID_ANY, u"知力:100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_2_normal_int_label.Wrap(-1)
+
+        sbSizer342.Add(self.sub_2_normal_int_label, 0, wx.ALL, 5)
+
+        self.sub_2_normal_spd_label = wx.StaticText(sbSizer342.GetStaticBox(), wx.ID_ANY, u"速度:100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_2_normal_spd_label.Wrap(-1)
+
+        sbSizer342.Add(self.sub_2_normal_spd_label, 0, wx.ALL, 5)
+
+        sbSizer332.Add(sbSizer342, 0, wx.EXPAND, 5)
+
+        sbSizer352 = wx.StaticBoxSizer(wx.StaticBox(sbSizer332.GetStaticBox(), wx.ID_ANY, u"戦闘開始時"), wx.HORIZONTAL)
+
+        self.sub_2_battle_str_label = wx.StaticText(sbSizer352.GetStaticBox(), wx.ID_ANY, u"武力：100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_2_battle_str_label.Wrap(-1)
+
+        sbSizer352.Add(self.sub_2_battle_str_label, 0, wx.ALL, 5)
+
+        self.sub_2_battle_def_label = wx.StaticText(sbSizer352.GetStaticBox(), wx.ID_ANY, u"統率:100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_2_battle_def_label.Wrap(-1)
+
+        sbSizer352.Add(self.sub_2_battle_def_label, 0, wx.ALL, 5)
+
+        self.sub_2_battle_int_label = wx.StaticText(sbSizer352.GetStaticBox(), wx.ID_ANY, u"知力:100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_2_battle_int_label.Wrap(-1)
+
+        sbSizer352.Add(self.sub_2_battle_int_label, 0, wx.ALL, 5)
+
+        self.sub_2_battle_spd_label = wx.StaticText(sbSizer352.GetStaticBox(), wx.ID_ANY, u"速度:100", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_2_battle_spd_label.Wrap(-1)
+
+        sbSizer352.Add(self.sub_2_battle_spd_label, 0, wx.ALL, 5)
+
+        sbSizer332.Add(sbSizer352, 0, wx.EXPAND, 5)
+
+        self.hensei_status_show_base_box.Add(sbSizer332, 1, wx.EXPAND, 5)
+
+    def create_control_panel(self):
+        base_box_static = wx.StaticBoxSizer(wx.StaticBox(self.control_panel, wx.ID_ANY, u"操作"), wx.VERTICAL)
+
+        base_box = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.output_button = wx.Button(base_box_static.GetStaticBox(), wx.ID_ANY, u"編成セット出力", wx.DefaultPosition, wx.DefaultSize, 0)
+        base_box.Add(self.output_button, 0, wx.ALL, 5)
         self.output_button.Disable()
 
-        self.input_button = wx.Button(sbSizer7.GetStaticBox(), wx.ID_ANY, u"編成セット読込", wx.DefaultPosition, wx.DefaultSize, 0)
-        bSizer14.Add(self.input_button, 0, wx.ALL, 5)
+        self.input_button = wx.Button(base_box_static.GetStaticBox(), wx.ID_ANY, u"編成セット読込", wx.DefaultPosition, wx.DefaultSize, 0)
+        base_box.Add(self.input_button, 0, wx.ALL, 5)
         self.input_button.Disable()
 
-        self.output_discord_button = wx.Button(sbSizer7.GetStaticBox(), wx.ID_ANY, u"編成出力(Discord用)", wx.DefaultPosition, wx.DefaultSize, 0)
-        bSizer14.Add(self.output_discord_button, 0, wx.ALL, 5)
+        self.output_discord_button = wx.Button(base_box_static.GetStaticBox(), wx.ID_ANY, u"編成出力(Discord用)", wx.DefaultPosition, wx.DefaultSize, 0)
+        base_box.Add(self.output_discord_button, 0, wx.ALL, 5)
+        
+        self.show_list_button = wx.Button(base_box_static.GetStaticBox(), wx.ID_ANY, u"編成一覧", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.Bind(wx.EVT_BUTTON, self.show_hensei_list, self.show_list_button)
+        base_box.Add(self.show_list_button, 0, wx.ALL, 5)
 
-        sbSizer7.Add(bSizer14, 1, wx.EXPAND, 5)
+        base_box_static.Add(base_box, 1, wx.EXPAND, 5)
 
-        self.m_panel4.SetSizer(sbSizer7)
-        self.m_panel4.Layout()
-        sbSizer7.Fit(self.m_panel4)
-        bSizer5.Add(self.m_panel4, 0, wx.EXPAND | wx.ALL, 5)
+        self.control_panel.SetSizer(base_box_static)
+        self.control_panel.Layout()
+        base_box_static.Fit(self.control_panel)
+        return
 
-        self.m_panel6 = wx.Panel(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
-        bSizer89 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.m_panel1 = wx.Panel(self.m_panel6, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+    def create_hensei_select_panel(self):
         self.m_panel1.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_INACTIVEBORDER))
 
         sbSizer3 = wx.StaticBoxSizer(wx.StaticBox(self.m_panel1, wx.ID_ANY, u"編成選択"), wx.VERTICAL)
@@ -135,15 +349,12 @@ class TopFrame (wx.Frame):
         self.m_panel1.SetSizer(sbSizer3)
         self.m_panel1.Layout()
         sbSizer3.Fit(self.m_panel1)
-        bSizer89.Add(self.m_panel1, 0, wx.EXPAND | wx.ALL, 5)
+        return
 
-        self.m_panel7 = wx.Panel(self.m_panel6, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
-        bSizer91 = wx.BoxSizer(wx.VERTICAL)
-
-        self.m_panel2 = wx.Panel(self.m_panel7, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+    def create_common_panel(self):
         bSizer119 = wx.BoxSizer(wx.HORIZONTAL)
 
-        sbSizer2 = wx.StaticBoxSizer(wx.StaticBox(self.m_panel2, wx.ID_ANY, u"兵種"), wx.VERTICAL)
+        sbSizer2 = wx.StaticBoxSizer(wx.StaticBox(self.hensei_common_panel, wx.ID_ANY, u"兵種"), wx.VERTICAL)
 
         select_kind_choiceChoices = ["馬", "盾", "弓", "槍", "兵器", "水軍"]
         self.select_kind_choice = wx.Choice(sbSizer2.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, select_kind_choiceChoices, 0)
@@ -153,7 +364,7 @@ class TopFrame (wx.Frame):
 
         bSizer119.Add(sbSizer2, 1, wx.EXPAND, 5)
 
-        sbSizer21 = wx.StaticBoxSizer(wx.StaticBox(self.m_panel2, wx.ID_ANY, u"レベル"), wx.VERTICAL)
+        sbSizer21 = wx.StaticBoxSizer(wx.StaticBox(self.hensei_common_panel, wx.ID_ANY, u"レベル"), wx.VERTICAL)
 
         self.level_text_ctrl = wx.TextCtrl(sbSizer21.GetStaticBox(), wx.ID_ANY, u"1", wx.DefaultPosition, wx.DefaultSize, 0)
         self.level_text_ctrl.SetMaxLength(2)
@@ -161,7 +372,7 @@ class TopFrame (wx.Frame):
 
         bSizer119.Add(sbSizer21, 1, wx.EXPAND, 5)
 
-        sbSizer211 = wx.StaticBoxSizer(wx.StaticBox(self.m_panel2, wx.ID_ANY, u"兵戦レベル"), wx.VERTICAL)
+        sbSizer211 = wx.StaticBoxSizer(wx.StaticBox(self.hensei_common_panel, wx.ID_ANY, u"兵戦レベル"), wx.VERTICAL)
 
         select_heisen_level_choiceChoices = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
         self.select_heisen_level_choice = wx.Choice(sbSizer211.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, select_heisen_level_choiceChoices, 0)
@@ -170,7 +381,7 @@ class TopFrame (wx.Frame):
 
         bSizer119.Add(sbSizer211, 1, wx.EXPAND, 5)
 
-        sbSizer212 = wx.StaticBoxSizer(wx.StaticBox(self.m_panel2, wx.ID_ANY, u"協力レベル"), wx.VERTICAL)
+        sbSizer212 = wx.StaticBoxSizer(wx.StaticBox(self.hensei_common_panel, wx.ID_ANY, u"協力レベル"), wx.VERTICAL)
         select_kyoryoku_level_choiceChoices = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
         self.select_kyoryoku_level_choice = wx.Choice(sbSizer212.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, select_kyoryoku_level_choiceChoices, 0)
         self.select_kyoryoku_level_choice.SetSelection(0)
@@ -178,7 +389,7 @@ class TopFrame (wx.Frame):
 
         bSizer119.Add(sbSizer212, 1, wx.EXPAND, 5)
 
-        sbSizer25 = wx.StaticBoxSizer(wx.StaticBox(self.m_panel2, wx.ID_ANY, u"絆効果"), wx.VERTICAL)
+        sbSizer25 = wx.StaticBoxSizer(wx.StaticBox(self.hensei_common_panel, wx.ID_ANY, u"絆効果"), wx.VERTICAL)
 
         self.kizuna_label = wx.StaticText(sbSizer25.GetStaticBox(), wx.ID_ANY, u"なし（効果なし）", wx.DefaultPosition, wx.DefaultSize, 0)
         self.kizuna_label.Wrap(-1)
@@ -187,444 +398,12 @@ class TopFrame (wx.Frame):
 
         bSizer119.Add(sbSizer25, 1, wx.EXPAND, 5)
 
-        self.m_panel2.SetSizer(bSizer119)
-        self.m_panel2.Layout()
-        bSizer119.Fit(self.m_panel2)
-        bSizer91.Add(self.m_panel2, 0, wx.ALL, 5)
-
-        self.m_panel3 = wx.Panel(self.m_panel7, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
-        sbSizer6 = wx.StaticBoxSizer(wx.StaticBox(self.m_panel3, wx.ID_ANY, u"編成"), wx.VERTICAL)
-
-        bSizer19 = wx.BoxSizer(wx.HORIZONTAL)
-
-        bSizer19.SetMinSize(wx.Size(-1, 150))
-        self.m_panel12 = wx.Panel(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.BORDER_THEME | wx.TAB_TRAVERSAL)
-        bSizer271 = wx.BoxSizer(wx.VERTICAL)
-
-        self.m_staticText431 = wx.StaticText(self.m_panel12, wx.ID_ANY, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.m_staticText431.Wrap(-1)
-
-        bSizer271.Add(self.m_staticText431, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-
-        bSizer3111 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.main_unit_drop_button = wx.Button(self.m_panel12, ID_SELECT_CLEAR_MAIN, u"外す", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.main_unit_drop_button.SetMaxSize(wx.Size(35, -1))
-        self.Bind(wx.EVT_BUTTON, self.drop_unit, self.main_unit_drop_button)
-
-        bSizer3111.Add(self.main_unit_drop_button, 0, wx.ALL | wx.EXPAND, 5)
-
-        bSizer271.Add(bSizer3111, 1, wx.EXPAND, 5)
-
-        bSizer3121 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.sub_1_unit_drop_button = wx.Button(self.m_panel12, ID_SELECT_CLEAR_SUB_1, u"外す", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.sub_1_unit_drop_button.SetMaxSize(wx.Size(35, -1))
-        self.Bind(wx.EVT_BUTTON, self.drop_unit, self.sub_1_unit_drop_button)
-
-        bSizer3121.Add(self.sub_1_unit_drop_button, 0, wx.ALL | wx.EXPAND, 5)
-
-        bSizer271.Add(bSizer3121, 1, wx.EXPAND, 5)
-
-        bSizer3131 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.sub_2_unit_drop_button = wx.Button(self.m_panel12, ID_SELECT_CLEAR_SUB_2, u"外す", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.sub_2_unit_drop_button.SetMaxSize(wx.Size(35, -1))
-        self.Bind(wx.EVT_BUTTON, self.drop_unit, self.sub_2_unit_drop_button)
-
-        bSizer3131.Add(self.sub_2_unit_drop_button, 0, wx.ALL | wx.EXPAND, 5)
-
-        bSizer271.Add(bSizer3131, 1, wx.EXPAND, 5)
-
-        self.m_panel12.SetSizer(bSizer271)
-        self.m_panel12.Layout()
-        bSizer271.Fit(self.m_panel12)
-        bSizer19.Add(self.m_panel12, 0, wx.EXPAND | wx.ALL, 5)
-
-        bSizer27 = wx.BoxSizer(wx.VERTICAL)
-
-        self.m_staticText43 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"武将名", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.m_staticText43.Wrap(-1)
-
-        bSizer27.Add(self.m_staticText43, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-
-        bSizer311 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.m_staticText351 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"主将", wx.DefaultPosition, wx.Size(50, -1), wx.ALIGN_LEFT)
-        self.m_staticText351.Wrap(-1)
-
-        bSizer311.Add(self.m_staticText351, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        self.main_unit_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_MAIN, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
-        bSizer311.Add(self.main_unit_select_button, 0, wx.ALL | wx.EXPAND, 5)
-        self.Bind(wx.EVT_BUTTON, self.show_unit_select, self.main_unit_select_button)
-
-        bSizer27.Add(bSizer311, 1, wx.EXPAND, 5)
-
-        bSizer312 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.m_staticText352 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"副将１", wx.DefaultPosition, wx.Size(50, -1), wx.ALIGN_LEFT)
-        self.m_staticText352.Wrap(-1)
-
-        bSizer312.Add(self.m_staticText352, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        self.sub_1_unit_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_SUB_1, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
-        bSizer312.Add(self.sub_1_unit_select_button, 0, wx.ALL | wx.EXPAND, 5)
-        self.Bind(wx.EVT_BUTTON, self.show_unit_select, self.sub_1_unit_select_button)
-
-        bSizer27.Add(bSizer312, 1, wx.EXPAND, 5)
-
-        bSizer313 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.m_staticText353 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"副将２", wx.DefaultPosition, wx.Size(50, -1), wx.ALIGN_LEFT)
-        self.m_staticText353.Wrap(-1)
-
-        bSizer313.Add(self.m_staticText353, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        self.sub_2_unit_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_SUB_2, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
-        bSizer313.Add(self.sub_2_unit_select_button, 0, wx.ALL | wx.EXPAND, 5)
-        self.Bind(wx.EVT_BUTTON, self.show_unit_select, self.sub_2_unit_select_button)
-
-        bSizer27.Add(bSizer313, 1, wx.EXPAND, 5)
-
-        bSizer19.Add(bSizer27, 1, wx.EXPAND, 5)
-
-        bSizer2011 = wx.BoxSizer(wx.VERTICAL)
-
-        self.m_staticText1611 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"陣営", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.m_staticText1611.Wrap(-1)
-
-        bSizer2011.Add(self.m_staticText1611, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer4411 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.main_country_label = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"魏", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
-        self.main_country_label.Wrap(-1)
-
-        self.main_country_label.SetMaxSize(wx.Size(20, -1))
-
-        bSizer4411.Add(self.main_country_label, 1, wx.ALIGN_CENTER | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer2011.Add(bSizer4411, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
-
-        bSizer4511 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.sub_1_country_label = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"魏", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
-        self.sub_1_country_label.Wrap(-1)
-
-        self.sub_1_country_label.SetMaxSize(wx.Size(20, -1))
-
-        bSizer4511.Add(self.sub_1_country_label, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer2011.Add(bSizer4511, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
-
-        bSizer4611 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.sub_2_country_label = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"魏", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
-        self.sub_2_country_label.Wrap(-1)
-
-        self.sub_2_country_label.SetMaxSize(wx.Size(20, -1))
-
-        bSizer4611.Add(self.sub_2_country_label, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer2011.Add(bSizer4611, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
-
-        bSizer19.Add(bSizer2011, 0, wx.EXPAND, 5)
-
-        bSizer201 = wx.BoxSizer(wx.VERTICAL)
-
-        self.m_staticText161 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"適正", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.m_staticText161.Wrap(-1)
-
-        bSizer201.Add(self.m_staticText161, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer441 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.main_suitable_label = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"S", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
-        self.main_suitable_label.Wrap(-1)
-
-        self.main_suitable_label.SetMaxSize(wx.Size(20, -1))
-
-        bSizer441.Add(self.main_suitable_label, 1, wx.ALIGN_CENTER | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer201.Add(bSizer441, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
-
-        bSizer451 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.sub_1_suitable_label = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"S", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
-        self.sub_1_suitable_label.Wrap(-1)
-
-        self.sub_1_suitable_label.SetMaxSize(wx.Size(20, -1))
-
-        bSizer451.Add(self.sub_1_suitable_label, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer201.Add(bSizer451, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
-
-        bSizer461 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.sub_2_suitable_label = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"S", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
-        self.sub_2_suitable_label.Wrap(-1)
-
-        self.sub_2_suitable_label.SetMaxSize(wx.Size(20, -1))
-
-        bSizer461.Add(self.sub_2_suitable_label, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer201.Add(bSizer461, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
-
-        bSizer19.Add(bSizer201, 0, wx.EXPAND, 5)
-
-        bSizer20 = wx.BoxSizer(wx.VERTICAL)
-
-        self.m_staticText16 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"固有戦法", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.m_staticText16.Wrap(-1)
-
-        bSizer20.Add(self.m_staticText16, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer44 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.main_unique_senpo_label = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"固有戦法1", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
-        self.main_unique_senpo_label.Wrap(-1)
-
-        bSizer44.Add(self.main_unique_senpo_label, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer20.Add(bSizer44, 1, wx.EXPAND, 5)
-
-        bSizer45 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.sub_1_unique_senpo_label = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"固有戦法2", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
-        self.sub_1_unique_senpo_label.Wrap(-1)
-
-        bSizer45.Add(self.sub_1_unique_senpo_label, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer20.Add(bSizer45, 1, wx.EXPAND, 5)
-
-        bSizer46 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.sub_2_unique_senpo_label = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"固有戦法3", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
-        self.sub_2_unique_senpo_label.Wrap(-1)
-
-        bSizer46.Add(self.sub_2_unique_senpo_label, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer20.Add(bSizer46, 1, wx.EXPAND, 5)
-
-        bSizer19.Add(bSizer20, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
-
-        bSizer21 = wx.BoxSizer(wx.VERTICAL)
-
-        self.m_staticText22 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"戦法２", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.m_staticText22.Wrap(-1)
-
-        bSizer21.Add(self.m_staticText22, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-
-        bSizer47 = wx.BoxSizer(wx.HORIZONTAL)
-        self.main_senpo2_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_MAIN_SENPO_2, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
-        bSizer47.Add(self.main_senpo2_select_button, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-        self.Bind(wx.EVT_BUTTON, self.show_senpo_select, self.main_senpo2_select_button)
-        bSizer21.Add(bSizer47, 1, wx.EXPAND, 5)
-
-        bSizer49 = wx.BoxSizer(wx.HORIZONTAL)
-        self.sub_1_senpo2_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_SUB_1_SENPO_2, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
-        bSizer49.Add(self.sub_1_senpo2_select_button, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-        self.Bind(wx.EVT_BUTTON, self.show_senpo_select, self.sub_1_senpo2_select_button)
-        bSizer21.Add(bSizer49, 1, wx.EXPAND, 5)
-
-        bSizer50 = wx.BoxSizer(wx.HORIZONTAL)
-        self.sub_2_senpo2_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_SUB_2_SENPO_2, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
-        bSizer50.Add(self.sub_2_senpo2_select_button, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-        self.Bind(wx.EVT_BUTTON, self.show_senpo_select, self.sub_2_senpo2_select_button)
-        bSizer21.Add(bSizer50, 1, wx.EXPAND, 5)
+        self.hensei_common_panel.SetSizer(bSizer119)
+        self.hensei_common_panel.Layout()
+        bSizer119.Fit(self.hensei_common_panel)
         
-        bSizer19.Add(bSizer21, 1, wx.EXPAND, 5)
-
-        bSizer22 = wx.BoxSizer(wx.VERTICAL)
-
-        self.m_staticText26 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"戦法３", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.m_staticText26.Wrap(-1)
-
-        bSizer22.Add(self.m_staticText26, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-
-        bSizer51 = wx.BoxSizer(wx.HORIZONTAL)
-        self.main_senpo3_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_MAIN_SENPO_3, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
-        bSizer51.Add(self.main_senpo3_select_button, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-        self.Bind(wx.EVT_BUTTON, self.show_senpo_select, self.main_senpo3_select_button)
-        bSizer22.Add(bSizer51, 1, wx.EXPAND, 5)
-
-        bSizer52 = wx.BoxSizer(wx.HORIZONTAL)
-        self.sub_1_senpo3_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_SUB_1_SENPO_3, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
-        bSizer52.Add(self.sub_1_senpo3_select_button, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-        self.Bind(wx.EVT_BUTTON, self.show_senpo_select, self.sub_1_senpo3_select_button)
-        bSizer22.Add(bSizer52, 1, wx.EXPAND, 5)
-
-        bSizer53 = wx.BoxSizer(wx.HORIZONTAL)
-        self.sub_2_senpo3_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_SUB_2_SENPO_3, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
-        bSizer53.Add(self.sub_2_senpo3_select_button, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-        self.Bind(wx.EVT_BUTTON, self.show_senpo_select, self.sub_2_senpo3_select_button)
-        bSizer22.Add(bSizer53, 1, wx.EXPAND, 5)
-
-        bSizer19.Add(bSizer22, 1, wx.EXPAND, 5)
-
-        bSizer23 = wx.BoxSizer(wx.VERTICAL)
-
-        self.m_staticText27 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"兵法書", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.m_staticText27.Wrap(-1)
-
-        bSizer23.Add(self.m_staticText27, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-
-        bSizer54 = wx.BoxSizer(wx.HORIZONTAL)
-
-        main_heihousyo_choiceChoices = []
-        self.main_heihousyo_choice = wx.Choice(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, main_heihousyo_choiceChoices, 0)
-        self.main_heihousyo_choice.Bind(wx.EVT_CHOICE, self.on_select_main_heihosyo_choice)
-        bSizer54.Add(self.main_heihousyo_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer23.Add(bSizer54, 1, wx.EXPAND, 5)
-
-        bSizer55 = wx.BoxSizer(wx.HORIZONTAL)
-
-        sub_1_heihousyo_choiceChoices = []
-        self.sub_1_heihousyo_choice = wx.Choice(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, sub_1_heihousyo_choiceChoices, 0)
-        self.sub_1_heihousyo_choice.Bind(wx.EVT_CHOICE, self.on_select_sub_1_heihosyo_choice)
-        bSizer55.Add(self.sub_1_heihousyo_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer23.Add(bSizer55, 1, wx.EXPAND, 5)
-
-        bSizer56 = wx.BoxSizer(wx.HORIZONTAL)
-
-        sub_2_heihousyo_choiceChoices = []
-        self.sub_2_heihousyo_choice = wx.Choice(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, sub_2_heihousyo_choiceChoices, 0)
-        self.sub_2_heihousyo_choice.Bind(wx.EVT_CHOICE, self.on_select_sub_2_heihosyo_choice)
-        bSizer56.Add(self.sub_2_heihousyo_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer23.Add(bSizer56, 1, wx.EXPAND, 5)
-
-        bSizer19.Add(bSizer23, 1, wx.EXPAND, 5)
-
-        bSizer231 = wx.BoxSizer(wx.VERTICAL)
-
-        self.m_staticText271 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"兵法１", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.m_staticText271.Wrap(-1)
-
-        bSizer231.Add(self.m_staticText271, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-
-        bSizer541 = wx.BoxSizer(wx.HORIZONTAL)
-
-        main_heihou1_choiceChoices = []
-        self.main_heihou1_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_MAIN_HEIHO_1, wx.DefaultPosition, wx.DefaultSize, main_heihou1_choiceChoices, 0)
-        self.main_heihou1_choice.SetSelection(0)
-        self.main_heihou1_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_1_choice)
-        bSizer541.Add(self.main_heihou1_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer231.Add(bSizer541, 1, wx.EXPAND, 5)
-
-        bSizer551 = wx.BoxSizer(wx.HORIZONTAL)
-
-        sub_1_heihou1_choiceChoices = []
-        self.sub_1_heihou1_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_SUB_1_HEIHO_1, wx.DefaultPosition, wx.DefaultSize, sub_1_heihou1_choiceChoices, 0)
-        self.sub_1_heihou1_choice.SetSelection(0)
-        self.sub_1_heihou1_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_1_choice)
-        bSizer551.Add(self.sub_1_heihou1_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer231.Add(bSizer551, 1, wx.EXPAND, 5)
-
-        bSizer561 = wx.BoxSizer(wx.HORIZONTAL)
-
-        sub_2_heihou1_choiceChoices = []
-        self.sub_2_heihou1_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_SUB_2_HEIHO_1, wx.DefaultPosition, wx.DefaultSize, sub_2_heihou1_choiceChoices, 0)
-        self.sub_2_heihou1_choice.SetSelection(0)
-        self.sub_2_heihou1_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_1_choice)
-        bSizer561.Add(self.sub_2_heihou1_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer231.Add(bSizer561, 1, wx.EXPAND, 5)
-
-        bSizer19.Add(bSizer231, 1, wx.EXPAND, 5)
-
-        bSizer232 = wx.BoxSizer(wx.VERTICAL)
-
-        self.m_staticText272 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"兵法２", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.m_staticText272.Wrap(-1)
-
-        bSizer232.Add(self.m_staticText272, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-
-        bSizer542 = wx.BoxSizer(wx.HORIZONTAL)
-
-        main_heihou2_choiceChoices = []
-        self.main_heihou2_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_MAIN_HEIHO_2, wx.DefaultPosition, wx.DefaultSize, main_heihou2_choiceChoices, 0)
-        self.main_heihou2_choice.SetSelection(0)
-        self.main_heihou2_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_2_3_choice)
-        bSizer542.Add(self.main_heihou2_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer232.Add(bSizer542, 1, wx.EXPAND, 5)
-
-        bSizer552 = wx.BoxSizer(wx.HORIZONTAL)
-
-        sub_1_heihou2_choiceChoices = []
-        self.sub_1_heihou2_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_SUB_1_HEIHO_2, wx.DefaultPosition, wx.DefaultSize, sub_1_heihou2_choiceChoices, 0)
-        self.sub_1_heihou2_choice.SetSelection(0)
-        self.sub_1_heihou2_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_2_3_choice)
-        bSizer552.Add(self.sub_1_heihou2_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer232.Add(bSizer552, 1, wx.EXPAND, 5)
-
-        bSizer562 = wx.BoxSizer(wx.HORIZONTAL)
-
-        sub_2_heihou2_choiceChoices = []
-        self.sub_2_heihou2_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_SUB_2_HEIHO_2, wx.DefaultPosition, wx.DefaultSize, sub_2_heihou2_choiceChoices, 0)
-        self.sub_2_heihou2_choice.SetSelection(0)
-        self.sub_2_heihou2_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_2_3_choice)
-        bSizer562.Add(self.sub_2_heihou2_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer232.Add(bSizer562, 1, wx.EXPAND, 5)
-
-        bSizer19.Add(bSizer232, 1, wx.EXPAND, 5)
-
-        bSizer2321 = wx.BoxSizer(wx.VERTICAL)
-
-        self.m_staticText2721 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"兵法３", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.m_staticText2721.Wrap(-1)
-
-        bSizer2321.Add(self.m_staticText2721, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
-
-        bSizer5421 = wx.BoxSizer(wx.HORIZONTAL)
-
-        main_heihou3_choiceChoices = []
-        self.main_heihou3_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_MAIN_HEIHO_3, wx.DefaultPosition, wx.DefaultSize, main_heihou3_choiceChoices, 0)
-        self.main_heihou3_choice.SetSelection(0)
-        self.main_heihou3_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_2_3_choice)
-        bSizer5421.Add(self.main_heihou3_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer2321.Add(bSizer5421, 1, wx.EXPAND, 5)
-
-        bSizer5521 = wx.BoxSizer(wx.HORIZONTAL)
-
-        sub_1_heihou3_choiceChoices = []
-        self.sub_1_heihou3_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_SUB_1_HEIHO_3, wx.DefaultPosition, wx.DefaultSize, sub_1_heihou3_choiceChoices, 0)
-        self.sub_1_heihou3_choice.SetSelection(0)
-        self.sub_1_heihou3_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_2_3_choice)
-        bSizer5521.Add(self.sub_1_heihou3_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer2321.Add(bSizer5521, 1, wx.EXPAND, 5)
-
-        bSizer5621 = wx.BoxSizer(wx.HORIZONTAL)
-
-        sub_2_heihou3_choiceChoices = []
-        self.sub_2_heihou3_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_SUB_2_HEIHO_3, wx.DefaultPosition, wx.DefaultSize, sub_2_heihou3_choiceChoices, 0)
-        self.sub_2_heihou3_choice.SetSelection(0)
-        self.sub_2_heihou3_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_2_3_choice)
-        bSizer5621.Add(self.sub_2_heihou3_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
-
-        bSizer2321.Add(bSizer5621, 1, wx.EXPAND, 5)
-
-        bSizer19.Add(bSizer2321, 1, wx.EXPAND, 5)
-
-        sbSizer6.Add(bSizer19, 1, wx.EXPAND, 5)
-
-        self.m_panel3.SetSizer(sbSizer6)
-        self.m_panel3.Layout()
-        sbSizer6.Fit(self.m_panel3)
-        bSizer91.Add(self.m_panel3, 0, wx.ALL | wx.EXPAND, 5)
-
-        self.m_panel8 = wx.Panel(self.m_panel7, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
-        sbSizer9 = wx.StaticBoxSizer(wx.StaticBox(self.m_panel8, wx.ID_ANY, u"ステータス配分（シミュレータ用）"), wx.HORIZONTAL)
+    def create_status_setting_panel(self):
+        sbSizer9 = wx.StaticBoxSizer(wx.StaticBox(self.hensei_status_edit_panel, wx.ID_ANY, u"ステータス配分（シミュレータ用）"), wx.HORIZONTAL)
 
         bSizer100 = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -1281,189 +1060,439 @@ class TopFrame (wx.Frame):
 
         sbSizer9.Add(bSizer100, 1, 0, 5)
 
-        self.m_panel8.SetSizer(sbSizer9)
-        self.m_panel8.Layout()
-        sbSizer9.Fit(self.m_panel8)
-        bSizer91.Add(self.m_panel8, 0, wx.EXPAND | wx.ALL, 5)
+        self.hensei_status_edit_panel.SetSizer(sbSizer9)
+        self.hensei_status_edit_panel.Layout()
+        sbSizer9.Fit(self.hensei_status_edit_panel)
+    
+    def create_hensei_setting_panel(self):
+        sbSizer6 = wx.StaticBoxSizer(wx.StaticBox(self.hensei_edit_panel, wx.ID_ANY, u"編成"), wx.VERTICAL)
 
-        sbSizer32 = wx.StaticBoxSizer(wx.StaticBox(self.m_panel7, wx.ID_ANY, u"ステータス"), wx.HORIZONTAL)
+        bSizer19 = wx.BoxSizer(wx.HORIZONTAL)
 
-        sbSizer33 = wx.StaticBoxSizer(wx.StaticBox(sbSizer32.GetStaticBox(), wx.ID_ANY, u"主将"), wx.VERTICAL)
+        bSizer19.SetMinSize(wx.Size(-1, 150))
+        self.m_panel12 = wx.Panel(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.BORDER_THEME | wx.TAB_TRAVERSAL)
+        bSizer271 = wx.BoxSizer(wx.VERTICAL)
 
-        sbSizer34 = wx.StaticBoxSizer(wx.StaticBox(sbSizer33.GetStaticBox(), wx.ID_ANY, u"通常"), wx.HORIZONTAL)
+        self.m_staticText431 = wx.StaticText(self.m_panel12, wx.ID_ANY, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_staticText431.Wrap(-1)
 
-        self.main_normal_str_label = wx.StaticText(sbSizer34.GetStaticBox(), wx.ID_ANY, u"武力：100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.main_normal_str_label.Wrap(-1)
+        bSizer271.Add(self.m_staticText431, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
 
-        sbSizer34.Add(self.main_normal_str_label, 0, wx.ALL, 5)
+        bSizer3111 = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.main_normal_def_label = wx.StaticText(sbSizer34.GetStaticBox(), wx.ID_ANY, u"統率:100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.main_normal_def_label.Wrap(-1)
+        self.main_unit_drop_button = wx.Button(self.m_panel12, ID_SELECT_CLEAR_MAIN, u"外す", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.main_unit_drop_button.SetMaxSize(wx.Size(35, -1))
+        self.Bind(wx.EVT_BUTTON, self.drop_unit, self.main_unit_drop_button)
 
-        sbSizer34.Add(self.main_normal_def_label, 0, wx.ALL, 5)
+        bSizer3111.Add(self.main_unit_drop_button, 0, wx.ALL | wx.EXPAND, 5)
 
-        self.main_normal_int_label = wx.StaticText(sbSizer34.GetStaticBox(), wx.ID_ANY, u"知力:100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.main_normal_int_label.Wrap(-1)
+        bSizer271.Add(bSizer3111, 1, wx.EXPAND, 5)
 
-        sbSizer34.Add(self.main_normal_int_label, 0, wx.ALL, 5)
+        bSizer3121 = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.main_normal_spd_label = wx.StaticText(sbSizer34.GetStaticBox(), wx.ID_ANY, u"速度:100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.main_normal_spd_label.Wrap(-1)
+        self.sub_1_unit_drop_button = wx.Button(self.m_panel12, ID_SELECT_CLEAR_SUB_1, u"外す", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_1_unit_drop_button.SetMaxSize(wx.Size(35, -1))
+        self.Bind(wx.EVT_BUTTON, self.drop_unit, self.sub_1_unit_drop_button)
 
-        sbSizer34.Add(self.main_normal_spd_label, 0, wx.ALL, 5)
+        bSizer3121.Add(self.sub_1_unit_drop_button, 0, wx.ALL | wx.EXPAND, 5)
 
-        sbSizer33.Add(sbSizer34, 0, wx.EXPAND, 5)
+        bSizer271.Add(bSizer3121, 1, wx.EXPAND, 5)
 
-        sbSizer35 = wx.StaticBoxSizer(wx.StaticBox(sbSizer33.GetStaticBox(), wx.ID_ANY, u"戦闘開始時"), wx.HORIZONTAL)
+        bSizer3131 = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.main_battle_str_label = wx.StaticText(sbSizer35.GetStaticBox(), wx.ID_ANY, u"武力：100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.main_battle_str_label.Wrap(-1)
+        self.sub_2_unit_drop_button = wx.Button(self.m_panel12, ID_SELECT_CLEAR_SUB_2, u"外す", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.sub_2_unit_drop_button.SetMaxSize(wx.Size(35, -1))
+        self.Bind(wx.EVT_BUTTON, self.drop_unit, self.sub_2_unit_drop_button)
 
-        sbSizer35.Add(self.main_battle_str_label, 0, wx.ALL, 5)
+        bSizer3131.Add(self.sub_2_unit_drop_button, 0, wx.ALL | wx.EXPAND, 5)
 
-        self.main_battle_def_label = wx.StaticText(sbSizer35.GetStaticBox(), wx.ID_ANY, u"統率:100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.main_battle_def_label.Wrap(-1)
+        bSizer271.Add(bSizer3131, 1, wx.EXPAND, 5)
 
-        sbSizer35.Add(self.main_battle_def_label, 0, wx.ALL, 5)
+        self.m_panel12.SetSizer(bSizer271)
+        self.m_panel12.Layout()
+        bSizer271.Fit(self.m_panel12)
+        bSizer19.Add(self.m_panel12, 0, wx.EXPAND | wx.ALL, 5)
 
-        self.main_battle_int_label = wx.StaticText(sbSizer35.GetStaticBox(), wx.ID_ANY, u"知力:100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.main_battle_int_label.Wrap(-1)
+        bSizer27 = wx.BoxSizer(wx.VERTICAL)
 
-        sbSizer35.Add(self.main_battle_int_label, 0, wx.ALL, 5)
+        self.m_staticText43 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"武将名", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_staticText43.Wrap(-1)
 
-        self.main_battle_spd_label = wx.StaticText(sbSizer35.GetStaticBox(), wx.ID_ANY, u"速度:100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.main_battle_spd_label.Wrap(-1)
+        bSizer27.Add(self.m_staticText43, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
 
-        sbSizer35.Add(self.main_battle_spd_label, 0, wx.ALL, 5)
+        bSizer311 = wx.BoxSizer(wx.HORIZONTAL)
 
-        sbSizer33.Add(sbSizer35, 0, wx.EXPAND, 5)
+        self.m_staticText351 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"主将", wx.DefaultPosition, wx.Size(50, -1), wx.ALIGN_LEFT)
+        self.m_staticText351.Wrap(-1)
 
-        sbSizer32.Add(sbSizer33, 1, wx.EXPAND, 5)
+        bSizer311.Add(self.m_staticText351, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
-        sbSizer331 = wx.StaticBoxSizer(wx.StaticBox(sbSizer32.GetStaticBox(), wx.ID_ANY, u"副将1"), wx.VERTICAL)
+        self.main_unit_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_MAIN, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
+        bSizer311.Add(self.main_unit_select_button, 0, wx.ALL | wx.EXPAND, 5)
+        self.Bind(wx.EVT_BUTTON, self.show_unit_select, self.main_unit_select_button)
 
-        sbSizer341 = wx.StaticBoxSizer(wx.StaticBox(sbSizer331.GetStaticBox(), wx.ID_ANY, u"通常"), wx.HORIZONTAL)
+        bSizer27.Add(bSizer311, 1, wx.EXPAND, 5)
 
-        self.sub_1_normal_str_label = wx.StaticText(sbSizer341.GetStaticBox(), wx.ID_ANY, u"武力：100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.sub_1_normal_str_label.Wrap(-1)
+        bSizer312 = wx.BoxSizer(wx.HORIZONTAL)
 
-        sbSizer341.Add(self.sub_1_normal_str_label, 0, wx.ALL, 5)
+        self.m_staticText352 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"副将１", wx.DefaultPosition, wx.Size(50, -1), wx.ALIGN_LEFT)
+        self.m_staticText352.Wrap(-1)
 
-        self.sub_1_normal_def_label = wx.StaticText(sbSizer341.GetStaticBox(), wx.ID_ANY, u"統率:100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.sub_1_normal_def_label.Wrap(-1)
+        bSizer312.Add(self.m_staticText352, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
-        sbSizer341.Add(self.sub_1_normal_def_label, 0, wx.ALL, 5)
+        self.sub_1_unit_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_SUB_1, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
+        bSizer312.Add(self.sub_1_unit_select_button, 0, wx.ALL | wx.EXPAND, 5)
+        self.Bind(wx.EVT_BUTTON, self.show_unit_select, self.sub_1_unit_select_button)
 
-        self.sub_1_normal_int_label = wx.StaticText(sbSizer341.GetStaticBox(), wx.ID_ANY, u"知力:100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.sub_1_normal_int_label.Wrap(-1)
+        bSizer27.Add(bSizer312, 1, wx.EXPAND, 5)
 
-        sbSizer341.Add(self.sub_1_normal_int_label, 0, wx.ALL, 5)
+        bSizer313 = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.sub_1_normal_spd_label = wx.StaticText(sbSizer341.GetStaticBox(), wx.ID_ANY, u"速度:100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.sub_1_normal_spd_label.Wrap(-1)
+        self.m_staticText353 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"副将２", wx.DefaultPosition, wx.Size(50, -1), wx.ALIGN_LEFT)
+        self.m_staticText353.Wrap(-1)
 
-        sbSizer341.Add(self.sub_1_normal_spd_label, 0, wx.ALL, 5)
+        bSizer313.Add(self.m_staticText353, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
-        sbSizer331.Add(sbSizer341, 0, wx.EXPAND, 5)
+        self.sub_2_unit_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_SUB_2, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
+        bSizer313.Add(self.sub_2_unit_select_button, 0, wx.ALL | wx.EXPAND, 5)
+        self.Bind(wx.EVT_BUTTON, self.show_unit_select, self.sub_2_unit_select_button)
 
-        sbSizer351 = wx.StaticBoxSizer(wx.StaticBox(sbSizer331.GetStaticBox(), wx.ID_ANY, u"戦闘開始時"), wx.HORIZONTAL)
+        bSizer27.Add(bSizer313, 1, wx.EXPAND, 5)
 
-        self.sub_1_battle_str_label = wx.StaticText(sbSizer351.GetStaticBox(), wx.ID_ANY, u"武力：100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.sub_1_battle_str_label.Wrap(-1)
+        bSizer19.Add(bSizer27, 1, wx.EXPAND, 5)
 
-        sbSizer351.Add(self.sub_1_battle_str_label, 0, wx.ALL, 5)
+        bSizer2011 = wx.BoxSizer(wx.VERTICAL)
 
-        self.sub_1_battle_def_label = wx.StaticText(sbSizer351.GetStaticBox(), wx.ID_ANY, u"統率:100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.sub_1_battle_def_label.Wrap(-1)
+        self.m_staticText1611 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"陣営", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_staticText1611.Wrap(-1)
 
-        sbSizer351.Add(self.sub_1_battle_def_label, 0, wx.ALL, 5)
+        bSizer2011.Add(self.m_staticText1611, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
-        self.sub_1_battle_int_label = wx.StaticText(sbSizer351.GetStaticBox(), wx.ID_ANY, u"知力:100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.sub_1_battle_int_label.Wrap(-1)
+        bSizer4411 = wx.BoxSizer(wx.HORIZONTAL)
 
-        sbSizer351.Add(self.sub_1_battle_int_label, 0, wx.ALL, 5)
+        self.main_country_label = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"魏", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
+        self.main_country_label.Wrap(-1)
 
-        self.sub_1_battle_spd_label = wx.StaticText(sbSizer351.GetStaticBox(), wx.ID_ANY, u"速度:100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.sub_1_battle_spd_label.Wrap(-1)
+        self.main_country_label.SetMaxSize(wx.Size(20, -1))
 
-        sbSizer351.Add(self.sub_1_battle_spd_label, 0, wx.ALL, 5)
+        bSizer4411.Add(self.main_country_label, 1, wx.ALIGN_CENTER | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
-        sbSizer331.Add(sbSizer351, 0, wx.EXPAND, 5)
+        bSizer2011.Add(bSizer4411, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
 
-        sbSizer32.Add(sbSizer331, 1, wx.EXPAND, 5)
+        bSizer4511 = wx.BoxSizer(wx.HORIZONTAL)
 
-        sbSizer332 = wx.StaticBoxSizer(wx.StaticBox(sbSizer32.GetStaticBox(), wx.ID_ANY, u"副将2"), wx.VERTICAL)
+        self.sub_1_country_label = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"魏", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
+        self.sub_1_country_label.Wrap(-1)
 
-        sbSizer342 = wx.StaticBoxSizer(wx.StaticBox(sbSizer332.GetStaticBox(), wx.ID_ANY, u"通常"), wx.HORIZONTAL)
+        self.sub_1_country_label.SetMaxSize(wx.Size(20, -1))
 
-        self.sub_2_normal_str_label = wx.StaticText(sbSizer342.GetStaticBox(), wx.ID_ANY, u"武力：100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.sub_2_normal_str_label.Wrap(-1)
+        bSizer4511.Add(self.sub_1_country_label, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
-        sbSizer342.Add(self.sub_2_normal_str_label, 0, wx.ALL, 5)
+        bSizer2011.Add(bSizer4511, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
 
-        self.sub_2_normal_def_label = wx.StaticText(sbSizer342.GetStaticBox(), wx.ID_ANY, u"統率:100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.sub_2_normal_def_label.Wrap(-1)
+        bSizer4611 = wx.BoxSizer(wx.HORIZONTAL)
 
-        sbSizer342.Add(self.sub_2_normal_def_label, 0, wx.ALL, 5)
+        self.sub_2_country_label = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"魏", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
+        self.sub_2_country_label.Wrap(-1)
 
-        self.sub_2_normal_int_label = wx.StaticText(sbSizer342.GetStaticBox(), wx.ID_ANY, u"知力:100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.sub_2_normal_int_label.Wrap(-1)
+        self.sub_2_country_label.SetMaxSize(wx.Size(20, -1))
 
-        sbSizer342.Add(self.sub_2_normal_int_label, 0, wx.ALL, 5)
+        bSizer4611.Add(self.sub_2_country_label, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
-        self.sub_2_normal_spd_label = wx.StaticText(sbSizer342.GetStaticBox(), wx.ID_ANY, u"速度:100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.sub_2_normal_spd_label.Wrap(-1)
+        bSizer2011.Add(bSizer4611, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
 
-        sbSizer342.Add(self.sub_2_normal_spd_label, 0, wx.ALL, 5)
+        bSizer19.Add(bSizer2011, 0, wx.EXPAND, 5)
 
-        sbSizer332.Add(sbSizer342, 0, wx.EXPAND, 5)
+        bSizer201 = wx.BoxSizer(wx.VERTICAL)
 
-        sbSizer352 = wx.StaticBoxSizer(wx.StaticBox(sbSizer332.GetStaticBox(), wx.ID_ANY, u"戦闘開始時"), wx.HORIZONTAL)
+        self.m_staticText161 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"適正", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_staticText161.Wrap(-1)
 
-        self.sub_2_battle_str_label = wx.StaticText(sbSizer352.GetStaticBox(), wx.ID_ANY, u"武力：100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.sub_2_battle_str_label.Wrap(-1)
+        bSizer201.Add(self.m_staticText161, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
-        sbSizer352.Add(self.sub_2_battle_str_label, 0, wx.ALL, 5)
+        bSizer441 = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.sub_2_battle_def_label = wx.StaticText(sbSizer352.GetStaticBox(), wx.ID_ANY, u"統率:100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.sub_2_battle_def_label.Wrap(-1)
+        self.main_suitable_label = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"S", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
+        self.main_suitable_label.Wrap(-1)
 
-        sbSizer352.Add(self.sub_2_battle_def_label, 0, wx.ALL, 5)
+        self.main_suitable_label.SetMaxSize(wx.Size(20, -1))
 
-        self.sub_2_battle_int_label = wx.StaticText(sbSizer352.GetStaticBox(), wx.ID_ANY, u"知力:100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.sub_2_battle_int_label.Wrap(-1)
+        bSizer441.Add(self.main_suitable_label, 1, wx.ALIGN_CENTER | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
-        sbSizer352.Add(self.sub_2_battle_int_label, 0, wx.ALL, 5)
+        bSizer201.Add(bSizer441, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
 
-        self.sub_2_battle_spd_label = wx.StaticText(sbSizer352.GetStaticBox(), wx.ID_ANY, u"速度:100", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.sub_2_battle_spd_label.Wrap(-1)
+        bSizer451 = wx.BoxSizer(wx.HORIZONTAL)
 
-        sbSizer352.Add(self.sub_2_battle_spd_label, 0, wx.ALL, 5)
+        self.sub_1_suitable_label = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"S", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
+        self.sub_1_suitable_label.Wrap(-1)
 
-        sbSizer332.Add(sbSizer352, 0, wx.EXPAND, 5)
+        self.sub_1_suitable_label.SetMaxSize(wx.Size(20, -1))
 
-        sbSizer32.Add(sbSizer332, 1, wx.EXPAND, 5)
+        bSizer451.Add(self.sub_1_suitable_label, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
-        bSizer91.Add(sbSizer32, 0, wx.EXPAND, 5)
+        bSizer201.Add(bSizer451, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
 
-        self.m_panel7.SetSizer(bSizer91)
-        self.m_panel7.Layout()
-        bSizer91.Fit(self.m_panel7)
-        bSizer89.Add(self.m_panel7, 1, wx.EXPAND | wx.ALL, 5)
+        bSizer461 = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.m_panel6.SetSizer(bSizer89)
-        self.m_panel6.Layout()
-        bSizer89.Fit(self.m_panel6)
-        bSizer5.Add(self.m_panel6, 1, wx.EXPAND | wx.ALL, 5)
+        self.sub_2_suitable_label = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"S", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
+        self.sub_2_suitable_label.Wrap(-1)
 
-        self.SetSizer(bSizer5)
-        self.Layout()
+        self.sub_2_suitable_label.SetMaxSize(wx.Size(20, -1))
 
-        self.Centre(wx.BOTH)
+        bSizer461.Add(self.sub_2_suitable_label, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 
-        self.initialize_parameter()
+        bSizer201.Add(bSizer461, 1, wx.ALIGN_CENTER_HORIZONTAL, 5)
 
-        return
+        bSizer19.Add(bSizer201, 0, wx.EXPAND, 5)
+
+        bSizer20 = wx.BoxSizer(wx.VERTICAL)
+
+        self.m_staticText16 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"固有戦法", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_staticText16.Wrap(-1)
+
+        bSizer20.Add(self.m_staticText16, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
+        bSizer44 = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.main_unique_senpo_label = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"固有戦法1", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
+        self.main_unique_senpo_label.Wrap(-1)
+
+        bSizer44.Add(self.main_unique_senpo_label, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
+        bSizer20.Add(bSizer44, 1, wx.EXPAND, 5)
+
+        bSizer45 = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.sub_1_unique_senpo_label = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"固有戦法2", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
+        self.sub_1_unique_senpo_label.Wrap(-1)
+
+        bSizer45.Add(self.sub_1_unique_senpo_label, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
+        bSizer20.Add(bSizer45, 1, wx.EXPAND, 5)
+
+        bSizer46 = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.sub_2_unique_senpo_label = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"固有戦法3", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
+        self.sub_2_unique_senpo_label.Wrap(-1)
+
+        bSizer46.Add(self.sub_2_unique_senpo_label, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
+        bSizer20.Add(bSizer46, 1, wx.EXPAND, 5)
+
+        bSizer19.Add(bSizer20, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
+
+        bSizer21 = wx.BoxSizer(wx.VERTICAL)
+
+        self.m_staticText22 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"戦法２", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_staticText22.Wrap(-1)
+
+        bSizer21.Add(self.m_staticText22, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+
+        bSizer47 = wx.BoxSizer(wx.HORIZONTAL)
+        self.main_senpo2_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_MAIN_SENPO_2, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
+        bSizer47.Add(self.main_senpo2_select_button, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+        self.Bind(wx.EVT_BUTTON, self.show_senpo_select, self.main_senpo2_select_button)
+        bSizer21.Add(bSizer47, 1, wx.EXPAND, 5)
+
+        bSizer49 = wx.BoxSizer(wx.HORIZONTAL)
+        self.sub_1_senpo2_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_SUB_1_SENPO_2, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
+        bSizer49.Add(self.sub_1_senpo2_select_button, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+        self.Bind(wx.EVT_BUTTON, self.show_senpo_select, self.sub_1_senpo2_select_button)
+        bSizer21.Add(bSizer49, 1, wx.EXPAND, 5)
+
+        bSizer50 = wx.BoxSizer(wx.HORIZONTAL)
+        self.sub_2_senpo2_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_SUB_2_SENPO_2, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
+        bSizer50.Add(self.sub_2_senpo2_select_button, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+        self.Bind(wx.EVT_BUTTON, self.show_senpo_select, self.sub_2_senpo2_select_button)
+        bSizer21.Add(bSizer50, 1, wx.EXPAND, 5)
+        
+        bSizer19.Add(bSizer21, 1, wx.EXPAND, 5)
+
+        bSizer22 = wx.BoxSizer(wx.VERTICAL)
+
+        self.m_staticText26 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"戦法３", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_staticText26.Wrap(-1)
+
+        bSizer22.Add(self.m_staticText26, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+
+        bSizer51 = wx.BoxSizer(wx.HORIZONTAL)
+        self.main_senpo3_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_MAIN_SENPO_3, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
+        bSizer51.Add(self.main_senpo3_select_button, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+        self.Bind(wx.EVT_BUTTON, self.show_senpo_select, self.main_senpo3_select_button)
+        bSizer22.Add(bSizer51, 1, wx.EXPAND, 5)
+
+        bSizer52 = wx.BoxSizer(wx.HORIZONTAL)
+        self.sub_1_senpo3_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_SUB_1_SENPO_3, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
+        bSizer52.Add(self.sub_1_senpo3_select_button, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+        self.Bind(wx.EVT_BUTTON, self.show_senpo_select, self.sub_1_senpo3_select_button)
+        bSizer22.Add(bSizer52, 1, wx.EXPAND, 5)
+
+        bSizer53 = wx.BoxSizer(wx.HORIZONTAL)
+        self.sub_2_senpo3_select_button = wx.Button(sbSizer6.GetStaticBox(), ID_SELECT_SUB_2_SENPO_3, u"選択", wx.DefaultPosition, wx.DefaultSize, 0)
+        bSizer53.Add(self.sub_2_senpo3_select_button, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+        self.Bind(wx.EVT_BUTTON, self.show_senpo_select, self.sub_2_senpo3_select_button)
+        bSizer22.Add(bSizer53, 1, wx.EXPAND, 5)
+
+        bSizer19.Add(bSizer22, 1, wx.EXPAND, 5)
+
+        bSizer23 = wx.BoxSizer(wx.VERTICAL)
+
+        self.m_staticText27 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"兵法書", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_staticText27.Wrap(-1)
+
+        bSizer23.Add(self.m_staticText27, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+
+        bSizer54 = wx.BoxSizer(wx.HORIZONTAL)
+
+        main_heihousyo_choiceChoices = []
+        self.main_heihousyo_choice = wx.Choice(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, main_heihousyo_choiceChoices, 0)
+        self.main_heihousyo_choice.Bind(wx.EVT_CHOICE, self.on_select_main_heihosyo_choice)
+        bSizer54.Add(self.main_heihousyo_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
+        bSizer23.Add(bSizer54, 1, wx.EXPAND, 5)
+
+        bSizer55 = wx.BoxSizer(wx.HORIZONTAL)
+
+        sub_1_heihousyo_choiceChoices = []
+        self.sub_1_heihousyo_choice = wx.Choice(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, sub_1_heihousyo_choiceChoices, 0)
+        self.sub_1_heihousyo_choice.Bind(wx.EVT_CHOICE, self.on_select_sub_1_heihosyo_choice)
+        bSizer55.Add(self.sub_1_heihousyo_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
+        bSizer23.Add(bSizer55, 1, wx.EXPAND, 5)
+
+        bSizer56 = wx.BoxSizer(wx.HORIZONTAL)
+
+        sub_2_heihousyo_choiceChoices = []
+        self.sub_2_heihousyo_choice = wx.Choice(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, sub_2_heihousyo_choiceChoices, 0)
+        self.sub_2_heihousyo_choice.Bind(wx.EVT_CHOICE, self.on_select_sub_2_heihosyo_choice)
+        bSizer56.Add(self.sub_2_heihousyo_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
+        bSizer23.Add(bSizer56, 1, wx.EXPAND, 5)
+
+        bSizer19.Add(bSizer23, 1, wx.EXPAND, 5)
+
+        bSizer231 = wx.BoxSizer(wx.VERTICAL)
+
+        self.m_staticText271 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"兵法１", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_staticText271.Wrap(-1)
+
+        bSizer231.Add(self.m_staticText271, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+
+        bSizer541 = wx.BoxSizer(wx.HORIZONTAL)
+
+        main_heihou1_choiceChoices = []
+        self.main_heihou1_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_MAIN_HEIHO_1, wx.DefaultPosition, wx.DefaultSize, main_heihou1_choiceChoices, 0)
+        self.main_heihou1_choice.SetSelection(0)
+        self.main_heihou1_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_1_choice)
+        bSizer541.Add(self.main_heihou1_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
+        bSizer231.Add(bSizer541, 1, wx.EXPAND, 5)
+
+        bSizer551 = wx.BoxSizer(wx.HORIZONTAL)
+
+        sub_1_heihou1_choiceChoices = []
+        self.sub_1_heihou1_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_SUB_1_HEIHO_1, wx.DefaultPosition, wx.DefaultSize, sub_1_heihou1_choiceChoices, 0)
+        self.sub_1_heihou1_choice.SetSelection(0)
+        self.sub_1_heihou1_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_1_choice)
+        bSizer551.Add(self.sub_1_heihou1_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
+        bSizer231.Add(bSizer551, 1, wx.EXPAND, 5)
+
+        bSizer561 = wx.BoxSizer(wx.HORIZONTAL)
+
+        sub_2_heihou1_choiceChoices = []
+        self.sub_2_heihou1_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_SUB_2_HEIHO_1, wx.DefaultPosition, wx.DefaultSize, sub_2_heihou1_choiceChoices, 0)
+        self.sub_2_heihou1_choice.SetSelection(0)
+        self.sub_2_heihou1_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_1_choice)
+        bSizer561.Add(self.sub_2_heihou1_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
+        bSizer231.Add(bSizer561, 1, wx.EXPAND, 5)
+
+        bSizer19.Add(bSizer231, 1, wx.EXPAND, 5)
+
+        bSizer232 = wx.BoxSizer(wx.VERTICAL)
+
+        self.m_staticText272 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"兵法２", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_staticText272.Wrap(-1)
+
+        bSizer232.Add(self.m_staticText272, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+
+        bSizer542 = wx.BoxSizer(wx.HORIZONTAL)
+
+        main_heihou2_choiceChoices = []
+        self.main_heihou2_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_MAIN_HEIHO_2, wx.DefaultPosition, wx.DefaultSize, main_heihou2_choiceChoices, 0)
+        self.main_heihou2_choice.SetSelection(0)
+        self.main_heihou2_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_2_3_choice)
+        bSizer542.Add(self.main_heihou2_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
+        bSizer232.Add(bSizer542, 1, wx.EXPAND, 5)
+
+        bSizer552 = wx.BoxSizer(wx.HORIZONTAL)
+
+        sub_1_heihou2_choiceChoices = []
+        self.sub_1_heihou2_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_SUB_1_HEIHO_2, wx.DefaultPosition, wx.DefaultSize, sub_1_heihou2_choiceChoices, 0)
+        self.sub_1_heihou2_choice.SetSelection(0)
+        self.sub_1_heihou2_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_2_3_choice)
+        bSizer552.Add(self.sub_1_heihou2_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
+        bSizer232.Add(bSizer552, 1, wx.EXPAND, 5)
+
+        bSizer562 = wx.BoxSizer(wx.HORIZONTAL)
+
+        sub_2_heihou2_choiceChoices = []
+        self.sub_2_heihou2_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_SUB_2_HEIHO_2, wx.DefaultPosition, wx.DefaultSize, sub_2_heihou2_choiceChoices, 0)
+        self.sub_2_heihou2_choice.SetSelection(0)
+        self.sub_2_heihou2_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_2_3_choice)
+        bSizer562.Add(self.sub_2_heihou2_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
+        bSizer232.Add(bSizer562, 1, wx.EXPAND, 5)
+
+        bSizer19.Add(bSizer232, 1, wx.EXPAND, 5)
+
+        bSizer2321 = wx.BoxSizer(wx.VERTICAL)
+
+        self.m_staticText2721 = wx.StaticText(sbSizer6.GetStaticBox(), wx.ID_ANY, u"兵法３", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.m_staticText2721.Wrap(-1)
+
+        bSizer2321.Add(self.m_staticText2721, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+
+        bSizer5421 = wx.BoxSizer(wx.HORIZONTAL)
+
+        main_heihou3_choiceChoices = []
+        self.main_heihou3_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_MAIN_HEIHO_3, wx.DefaultPosition, wx.DefaultSize, main_heihou3_choiceChoices, 0)
+        self.main_heihou3_choice.SetSelection(0)
+        self.main_heihou3_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_2_3_choice)
+        bSizer5421.Add(self.main_heihou3_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
+        bSizer2321.Add(bSizer5421, 1, wx.EXPAND, 5)
+
+        bSizer5521 = wx.BoxSizer(wx.HORIZONTAL)
+
+        sub_1_heihou3_choiceChoices = []
+        self.sub_1_heihou3_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_SUB_1_HEIHO_3, wx.DefaultPosition, wx.DefaultSize, sub_1_heihou3_choiceChoices, 0)
+        self.sub_1_heihou3_choice.SetSelection(0)
+        self.sub_1_heihou3_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_2_3_choice)
+        bSizer5521.Add(self.sub_1_heihou3_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
+        bSizer2321.Add(bSizer5521, 1, wx.EXPAND, 5)
+
+        bSizer5621 = wx.BoxSizer(wx.HORIZONTAL)
+
+        sub_2_heihou3_choiceChoices = []
+        self.sub_2_heihou3_choice = wx.Choice(sbSizer6.GetStaticBox(), ID_SELECT_SUB_2_HEIHO_3, wx.DefaultPosition, wx.DefaultSize, sub_2_heihou3_choiceChoices, 0)
+        self.sub_2_heihou3_choice.SetSelection(0)
+        self.sub_2_heihou3_choice.Bind(wx.EVT_CHOICE, self.on_select_heiho_2_3_choice)
+        bSizer5621.Add(self.sub_2_heihou3_choice, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
+
+        bSizer2321.Add(bSizer5621, 1, wx.EXPAND, 5)
+
+        bSizer19.Add(bSizer2321, 1, wx.EXPAND, 5)
+
+        sbSizer6.Add(bSizer19, 1, wx.EXPAND, 5)
+
+        self.hensei_edit_panel.SetSizer(sbSizer6)
+        self.hensei_edit_panel.Layout()
+        sbSizer6.Fit(self.hensei_edit_panel)
     
     def update_kind(self, event):
         choice = event.GetEventObject()
@@ -2442,6 +2471,17 @@ class TopFrame (wx.Frame):
             hensei_data = hensei_manager.get_hensei_data(selected_hensei)
 
             self.update_parameter(hensei_data, unit_id)
+
+        select_window.Destroy()
+    
+    def show_hensei_list(self, event):
+        try:
+            select_window = ShowList(self)
+            result = select_window.ShowModal()
+        except Exception as e:
+            print(e)
+        if result == wx.ID_CANCEL:
+            print("canceled")
 
         select_window.Destroy()
 
